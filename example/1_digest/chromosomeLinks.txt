@@ -1,0 +1,2 @@
+/home/GenomicsCore/GBS/example/A_chromosomes/chr21.fa
+/home/GenomicsCore/GBS/example/A_chromosomes/chr22.fa

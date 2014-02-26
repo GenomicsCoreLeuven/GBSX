@@ -1,0 +1,27 @@
+Start GBSX demultiplex on Tue Feb 25 17:10:51 CET 2014
+Toolkit Version: GBSX v1.0	 GBS demultiplexer Version: GBSX v1.0
+Started to open the first files, parsing of the parameters succeded.
+Parameters: 
+	 First fastq file: 	B_simulated_data/simulation.R1.fastq.gz
+	 Second fastq file: 	B_simulated_data/simulation.R2.fastq.gz
+	 Info-file: 	3_demultiplex/barcode_list.txt
+	 Output directory: 	3_demultiplex/
+	 In- and output file are gziped: 	true
+	 Use long file names: 	false
+	 Data type: 	 GBS
+	 Used algorithm to detect mismatches and/or indels: 	hammings
+	 Used self correcting barcodes: 	false
+	 Allowed mismatches in the barcode: 	1
+	 Allowed mismatches in the enzyme: 	1
+	 Must check reads completely: 	true
+	 Must keep the cutsites: 	true
+	 Allowed mismatches to check the adaptor ligase: 	1
+	 Used common adaptor: 	AGATCGGAAGAGCG
+	 Maximum distance between start of sequence and start of barcode: 	0
+	 Used scale for the quality: 	Illumina1.8
+	 Minimum length of the sequence: 	0
+	 Keep sequences with N as nucleotide: 	true
+
+Paired end demultiplexing
+
+Ended on Tue Feb 25 17:11:33 CET 2014

@@ -1,0 +1,38 @@
+input parameters:
+	enzyme name used: Enzyme
+	enzyme cut sequence: G^CWGC
+	for bedfile, genome name used: genome
+	read length provided: 100
+minimum fragment size: 100
+maximum fragment size: 1000
+
+reference sequence(s) analyzed:
+	/home/koen/NetBeansProjects/gc_gbstool/gbstool/GenomicsCore/example/0_chromosomes/chr21.fa
+	/home/koen/NetBeansProjects/gc_gbstool/gbstool/GenomicsCore/example/0_chromosomes/chr22.fa
+
+total cuts for enzyme (Enzyme): 154141
+
+looked at 154143 fragments in total
+89288 fragments <= 1000 nt and >= 100 nt
+	fragments in range per reference sequence:
+		chr22 had 53735 fragments
+		chr21 had 35553 fragments
+	distances between fragments in range:
+		<=1kb 75332 fragments
+		1kb-10kb 13798 fragments
+		10kb-100kb 152 fragments
+		100kb-1Mb 3 fragments
+		1Mb-10Mb 2 fragments
+		>10Mb 1 fragments
+45658 fragments less than 100 nt
+
+fragments 100-199 nt: 26622
+fragments 200-299 nt: 17222
+fragments 300-399 nt: 12161
+fragments 400-499 nt: 9141
+fragments 500-599 nt: 7009
+fragments 600-699 nt: 5679
+fragments 700-799 nt: 4537
+fragments 800-899 nt: 3803
+fragments 900-999 nt: 3086
+

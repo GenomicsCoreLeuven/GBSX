@@ -1,0 +1,10 @@
+Parameters: 
+Fastq File name: 	B_simulated_data/simulation.R1.fastq.gz
+Output directory= 	4_predictor
+Minimum barcode length: 	6
+Maximum barcode length: 	16
+Use gzip files: 	true
+	 Minimum Occurance of the barcodes: 	200
+	 Maximum Number of barcodes reported: 	100
+	 Mismatch percentage of the barcodes (between 1 and 100):	10
+	 Find possible enzymes: 	true

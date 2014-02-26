@@ -1,0 +1,30 @@
+Barcode Generator
+-----------------
+
+Number of barcodes to generate: 5
+Enzyme used in the experiment: ApeKI
+Maximum number of bootstraps: 10000
+Maximum number of barcode tries: 20
+Must use the ultime barcode search option: false
+Output directory: /home/GenomicsCore/GBS/example/2_barcodes
+Used basic set: false
+Used not use barcode set: false
+
+Barcodes: 
+	ACCACTATGT
+	CTCATACCACG
+	GAAGGTCCT
+	GCGGCGTA
+	TCAGACGGTAAT
+
+
+Position matrix:
+		1		2		3		4		5		6		7		8		9		10		11		12		13		14		15		16		17		18		19
+A		1.0		1.0		2.0		2.0		1.0		1.0		1.0		1.0		1.0		1.5		1.5		0.5		0.5		0.5		0.0		0.0		0.0		0.0		0.0
+C		1.0		3.0		2.0		0.0		2.0		1.0		2.0		2.0		1.0		2.0		1.0		2.0		2.0		1.0		1.0		1.0		0.0		0.0		0.0
+G		2.0		0.0		1.0		3.0		1.0		1.0		1.0		1.0		1.0		0.0		2.0		1.0		1.0		1.0		1.0		0.0		0.0		0.0		0.0
+T		1.0		1.0		0.0		0.0		1.0		2.0		1.0		1.0		2.0		1.5		0.5		1.5		0.5		0.5		0.0		0.0		0.0		0.0		0.0
+Qual:		1.00		0.00		0.00		0.00		1.00		1.00		1.00		1.00		1.00		0.00		0.50		0.50		�		�		�		0.00		0.00		0.00		0.00
+Created 5 of 5 barcodes.
+Used 1 of 10000 bootstraps to create this file.
+

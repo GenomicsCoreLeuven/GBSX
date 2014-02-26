@@ -1,0 +1,17 @@
+Corrections:
+SampleID	CorrectTrim	CorrectedR1	CorrectedR2	NotCorrectR1	NotCorrectR2
+sample3	57425	9689	860	33579	78
+sample2	53224	8748	983	38175	58
+sample1	55250	9205	928	36018	52
+sample5	51271	8216	1022	40455	46
+sample4	59802	10120	833	30904	117
+
+
+
+Trimming:
+SampleID	not_R1_not_R2	not_R1_but_OK	not_R1_but_fail	trim_R1_not_R2	trim_R1_trim_R2_long_R1	trim_R1_trim_R2_long_R2	trim_R1_trim_R2_ok
+sample3	17509	21619	30583	69	3036	9	28806
+sample2	15911	19161	34329	53	3890	5	27839
+sample1	16597	20477	32534	49	3523	3	28270
+sample5	14844	18148	36178	29	4341	17	27453
+sample4	18141	23294	28425	47	2609	70	29190
