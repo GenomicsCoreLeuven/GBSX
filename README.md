@@ -66,7 +66,6 @@ optional parameters:
 *     `-g`     genome name to use in bed file name (default: genome)  
 *     `-n`     minimum size fragments to include (default: 100)  
 *     `-m`     maximum size fragments to use (default: 1000)  
-  
 *     `-E`     second enzyme name to use (default: Enzyme2)  
 *     `-D`     digest sequence for a second enzyme (default: not declared)  
 *     `-R`     digest sequence for a third enzyme (default: not declared)  
