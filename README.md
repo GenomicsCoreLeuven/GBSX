@@ -27,11 +27,11 @@ A copy of this licence is included under LICENSE.
 
 ## Contact
 
-[Genomics Core](http://www.genomicscore.be "Genomics Core website")
-Center for Human Genetics
-UZ – KU Leuven
-Herestraat 49 PO box 602
-B-3000 Leuven, Belgium
+[Genomics Core](http://www.genomicscore.be "Genomics Core website")  
+Center for Human Genetics  
+UZ – KU Leuven  
+Herestraat 49 PO box 602  
+B-3000 Leuven, Belgium  
 
 Mail: [genomicscore@uzleuven.be](mailto:genomicscore@uzleuven.be "")
 
@@ -57,12 +57,12 @@ incorperated as a preceding analysis step for already deployed SNP pipelines.
 ### Restriction Enzyme Predictor
  
 mandatory parameters:  
-> *    `-d`    digest sequence  
+*    `-d`    digest sequence  
 *     `-l`     read length   
 *     `-f`     file of reference fasta file location(s)  
 
 optional parameters:  
-> *    `-e`    enzyme name to use (default: Enzyme)  
+*    `-e`    enzyme name to use (default: Enzyme)  
 *     `-g`     genome name to use in bed file name (default: genome)  
 *     `-n`     minimum size fragments to include (default: 100)  
 *     `-m`     maximum size fragments to use (default: 1000)  
@@ -75,11 +75,11 @@ optional parameters:
 ### Barcode Generator
 
 mandatory parameters:  
-> *    `-b`    the number of barcodes needed   
+*    `-b`    the number of barcodes needed   
 *    `-e`    the enzyme used for the experiment   
   
 optional parameters:  
-> *    `-ef`    the enzyme file. This option adds new enzymes.   
+*    `-ef`    the enzyme file. This option adds new enzymes.   
                 The file must be tab delimited: First column the enzyme name, 
 second column the cutsites remains (comma separated) (example: enzyme ApeKI and 
 restriction site G^CWGC: "ApeKI \tab CAGC,CTGC").   
@@ -108,13 +108,13 @@ inline barcodes.
 Like used in GBS, RAD, ... protocols.
 
 These parameters are mandatory:   
-> *    `-f1`    the name and path of the fastq or fastq.gz file to demultiplex  
+*    `-f1`    the name and path of the fastq or fastq.gz file to demultiplex  
 *    `-i`    the name and path of the info file. This is a tab delimeted file 
 without headings, with three columns: sample, sequence of the barcode, name of 
 the enzyme  
   
 These parameters are optional:   
-> *    `-f2`    the name of the second fastq or fastq.gz file (only with 
+*    `-f2`    the name of the second fastq or fastq.gz file (only with 
 paired-end sequencing)  
 *    `-o`    the name of the output directory (standard the directory of the 
 call)  
@@ -177,7 +177,7 @@ phred scores are encoded):
   
   
 Possible Standard Enzymes for the info file: (NAN is no enzyme)  
-> * `ApeKI`  
+* `ApeKI`  
 * `PstI`  
 * `EcoT22I`  
 * `PasI`  
@@ -209,9 +209,9 @@ Designed for the discovery of sequencing errors, or unused barcodes when a large
 proportion of the demultiplex is undetermined.  
 
 Mandatory parameters:  
-> * `-f1`    the name of the input file (mandatory)   
+* `-f1`    the name of the input file (mandatory)   
 Optional parameters:  
-> * `-min`    the minimum length of the barcode (standard 6)   
+* `-min`    the minimum length of the barcode (standard 6)   
 * `-max`    the maximum length of the barcode (standard 10)   
 * `-gzip`    use gzip files as input and output (standard false)   
 * `-o`    the output directory (standard the directory of execution)   
