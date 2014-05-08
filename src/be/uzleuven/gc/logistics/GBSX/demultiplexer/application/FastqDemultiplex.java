@@ -904,14 +904,14 @@ public final class FastqDemultiplex {
         for (String enzyme : cutsites){
             String endSequence = "";
             int endSeqMismatches = 0;
-            if (this.parameters.isRadData()){
-                endSequence = sample.getComplementBarcode();
-                endSeqMismatches = this.parameters.getAllowedMismatchesBarcode(sample);
-            }else{
+//            if (this.parameters.isRadData()){
+//                endSequence = sample.getComplementBarcode();
+//                endSeqMismatches = this.parameters.getAllowedMismatchesBarcode(sample);
+//            }else{
                 endSequence = this.parameters.getCommonAdaptor().substring(0, this.parameters.getAdaptorCompareSize());
                 endSeqMismatches = this.parameters.getAdaptorLigaseMismatches();
                 if (endSeqMismatches < 0) endSeqMismatches = 0;
-            }
+//            }
             int[] locationLength = this.findingDistanceAlgorithm.indexOf(sequence, enzyme, endSequence, this.parameters.getAllowedMismatchesEnzyme(), endSeqMismatches);
             
             if (locationLength[0] == -1){
