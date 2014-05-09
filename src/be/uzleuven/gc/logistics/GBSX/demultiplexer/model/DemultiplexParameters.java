@@ -95,10 +95,11 @@ public class DemultiplexParameters implements Parameters{
             FastqScores fastqScores = FastqScores.getFastqScores(parameter);
             this.arguments.put(DemultiplexArguments.QUALITY_SCORE, fastqScores.getType());
         }else if (argument == DemultiplexArguments.COMMON_ADAPTOR){
-            if (parameter.length() < 10){
+            if (parameter.length() < 0){
                 throw new RuntimeException("Invalid Common Adaptor");
             }else{
                 this.arguments.put(argument, parameter);
+                this.arguments.put(DemultiplexArguments.COMMON_ADAPTOR_COMPARE_SIZE, "" + parameter.length());
             }
         }else{
             this.arguments.put(argument, parameter);

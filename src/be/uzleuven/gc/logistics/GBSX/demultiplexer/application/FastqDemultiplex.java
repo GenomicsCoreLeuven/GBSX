@@ -728,8 +728,8 @@ public final class FastqDemultiplex {
             if (read1optimalSequence.length() > read2optimalSequence.length()){
                 //read 1 is longer, so trim read 1
                 int mismatch = -1;
-                if (read2optimalSequence.length() < read1.getSequence().length() - 10 - this.longestBarcodeLength){
-                    mismatch = (MismatchIndelDistance.calculateEquivalentDistance(read1optimalSequence.substring(read2optimalSequence.length(), (read2optimalSequence.length() + 10)), "AGATCGGAAG", 1)[0]);
+                if (read2optimalSequence.length() < read1.getSequence().length() - this.parameters.getAdaptorCompareSize() - this.longestBarcodeLength){
+                    mismatch = (MismatchIndelDistance.calculateEquivalentDistance(read1optimalSequence.substring(read2optimalSequence.length(), (read2optimalSequence.length() + this.parameters.getAdaptorCompareSize())), this.parameters.getCommonAdaptor(), 1)[0]);;
                 }
                 read1optimalSequence = read1optimalSequence.substring(0, read2optimalSequence.length());
                 read1optimalQuality = read1optimalQuality.substring(0, read2optimalSequence.length());
@@ -912,7 +912,7 @@ public final class FastqDemultiplex {
             if (locationLength[0] == -1){
                 //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme (no adaptor)
                 for (int i = 0; i < this.parameters.getAdaptorCompareSize(); i++){
-                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - this.parameters.getAdaptorCompareSize() - 1 - enzyme.length() + i), enzyme, endSequence.substring(0, this.parameters.getAdaptorCompareSize() - i), this.parameters.getAllowedMismatchesEnzyme(), 0);
+                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i), enzyme, endSequence.substring(0, this.parameters.getAdaptorCompareSize() - i), this.parameters.getAllowedMismatchesEnzyme(), 0);
                     if (newLocationLength[0] != -1){
                         newLocationLength[0] = sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i + newLocationLength[0];
                         locationLength = newLocationLength;
@@ -924,7 +924,7 @@ public final class FastqDemultiplex {
             if (locationLength[0] == -1){
                 //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme
                 for (int i = 0; i < enzyme.length(); i++){
-                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - enzyme.length() - 1 + i), enzyme.substring(0, enzyme.length() - i), 0);
+                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - enzyme.length() + i), enzyme.substring(0, enzyme.length() - i), 0);
                     if (newLocationLength[0] != -1){
                         newLocationLength[0] = sequence.length() - enzyme.length() + i + newLocationLength[0];
                         locationLength = newLocationLength;
@@ -937,7 +937,8 @@ public final class FastqDemultiplex {
                 bestIndex = locationLength;
                 bestIndex[1] = enzyme.length();
                 if (bestIndex[0] + enzyme.length() >= sequence.length()){
-                    bestIndex[1] = sequence.length() - bestIndex[0];
+                    bestIndex[0] = sequence.length();
+                    bestIndex[1] = 0;
                 }
             }
         }
@@ -966,6 +967,7 @@ public final class FastqDemultiplex {
             if (extraAdaptorSearch > this.parameters.getCommonAdaptor().length()){
                 extraAdaptorSearch = this.parameters.getCommonAdaptor().length();
             }
+//            int extraAdaptorSearch = 4;
             int[] place = {-1, 0};
             boolean searchMore = true;
             int posloc = -1;
@@ -973,14 +975,19 @@ public final class FastqDemultiplex {
             while (searchMore){
                 //find index of complement enzyme + complement barcode
                 int[] posplace = this.findingDistanceAlgorithm.indexOf(sequence.substring(posloc + 1), complementFoundEnzyme, sample.getComplementBarcode(), this.parameters.getAllowedMismatchesEnzyme(), this.parameters.getAllowedMismatchesBarcode(sample));
-
+                
                 if (posplace[0] == -1){
                     //no index found
                     searchMore = false;
                 }else if (posloc + 1 + posplace[0] < sequence.length() - complementFoundEnzyme.length() - sample.getComplementBarcode().length()
-                        && posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length() + extraAdaptorSearch < sequence.length()){
+//                        && posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length() + extraAdaptorSearch < sequence.length()
+                        ){
                     //if new found possible location is smaller then the maximum location
                     //and the the new found location + enzyme + barcode + extraAdaptor search is smaller than the length of the sequence
+                    extraAdaptorSearch = this.parameters.getAdaptorCompareSize();
+                    if (extraAdaptorSearch >= sequence.length() - (posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length())){
+                        extraAdaptorSearch = sequence.length() - (posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length()) -1;
+                    }
                     if (this.findingDistanceAlgorithm.isEquivalent(sequence.substring(posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length(), posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length() + extraAdaptorSearch), this.parameters.getCommonAdaptor().substring(0, extraAdaptorSearch), this.parameters.getAdaptorLigaseMismatches())){
                         //common adaptor found
                         int[] newMismatch = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(posloc + 1 + posplace[0], posloc + 1 + posplace[0] + complementFoundEnzyme.length() + sample.getComplementBarcode().length() + extraAdaptorSearch), complementFoundEnzyme + sample.getComplementBarcode() + this.parameters.getCommonAdaptor().substring(0, extraAdaptorSearch), (this.parameters.getAllowedMismatchesEnzyme() + this.parameters.getAllowedMismatchesBarcode(sample) + this.parameters.getAdaptorLigaseMismatches()));
@@ -1011,9 +1018,12 @@ public final class FastqDemultiplex {
             place[1] = complementFoundEnzyme.length();
             if (place[0] == -1){
                 //find with no barcode
-                int[] newplace = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() - 1 - extraAdaptorSearch), complementFoundEnzyme, this.parameters.getAllowedMismatchesEnzyme());
+//                int[] newplace = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() - extraAdaptorSearch), complementFoundEnzyme, this.parameters.getAllowedMismatchesEnzyme());
+                int[] newplace = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length()), complementFoundEnzyme, this.parameters.getAllowedMismatchesEnzyme());
+                
                 if (newplace[0] != -1){
-                    place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() - 1 - extraAdaptorSearch + newplace[0]);
+//                    place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() - extraAdaptorSearch + newplace[0]);
+                    place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() + newplace[0]);
                 }else{
                     //find with part enzyme
                     for (int ei=0; ei < complementFoundEnzyme.length(); ei++){
