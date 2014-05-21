@@ -25,6 +25,7 @@ import be.uzleuven.gc.logistics.GBSX.demultiplexer.DNAComplement;
 import be.uzleuven.gc.logistics.GBSX.barcodeDiscovery.BarcodeDiscovery;
 import be.uzleuven.gc.logistics.GBSX.barcodeGenerator.BarcodeGenerator;
 import be.uzleuven.gc.logistics.GBSX.demultiplexer.GBSdemultiplex;
+import be.uzleuven.gc.logistics.GBSX.simulator.GBSsimulate;
 import be.uzleuven.gc.logistics.GBSX.utils.exceptions.StopExcecutionException;
 
 /**
@@ -86,6 +87,7 @@ public class GBSX {
                 System.out.println("\t BarcodeDiscovery \t\t --BarcodeDiscovery \n\t\t a quick search for possible barcodes in a fastq file \n\t\t " + BarcodeDiscovery.VERSION);
                 System.out.println("\t DNAComplement \t\t --DNAComplement \n\t\t a tool to make the complement of a given DNA sequence \n\t\t " + DNAComplement.VERSION);
                 System.out.println("\t BarcodeGenerator \t\t --BarcodeGenerator \n\t\t a tool to generate random self-correcting barcodes (the barcodes has a hammings distance of at least 3)\n\t\t " + BarcodeGenerator.VERSION);
+                System.out.println("\t GBSsimulator \t\t --GBSsimulator \n\t\t a tool to simulate GBS data (only purpose is testing)\n\t\t " + BarcodeGenerator.VERSION);
                 System.out.println();
                 System.out.println("For tool specific help use --tool -help");
                 System.out.println();
@@ -125,12 +127,15 @@ public class GBSX {
                 DNAComplement.main(newArgs);
             }else if (args[0].toLowerCase().equals("--BarcodeGenerator".toLowerCase())){
                 BarcodeGenerator.main(newArgs);
+            }else if (args[0].toLowerCase().equals("--GBSsimulator".toLowerCase())){
+                GBSsimulate.main(newArgs);
             }else if (args[0].toLowerCase().equals("--DEBUG".toLowerCase())){
                 System.out.println("DEBUG is on:");
                 System.out.println("Demultiplexer: \t" + GBSdemultiplex.DEBUG);
                 System.out.println("BarcodeDiscovery: \t" + BarcodeDiscovery.DEBUG);
                 System.out.println("DNAComplement: \t" + DNAComplement.DEBUG);
                 System.out.println("BarcodeGenerator: \t" + BarcodeGenerator.DEBUG);
+                System.out.println("GBSsimulator: \t" + GBSsimulate.DEBUG);
             }else{
                 System.out.println("No valid tool found.");
                 System.out.println("Please use -help.");
@@ -140,7 +145,13 @@ public class GBSX {
             if (GBSX.DEBUG){
                 ex.printStackTrace();
             }
-        } 
+        } catch (IllegalArgumentException ex){
+            //No argument was given
+            System.out.println("" + ex.getMessage());
+            if (GBSX.DEBUG){
+                ex.printStackTrace();
+            }
+        }
         
         
     }
