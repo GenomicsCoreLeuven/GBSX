@@ -25,6 +25,7 @@ import be.uzleuven.gc.logistics.GBSX.barcodeGenerator.infrastructure.fileInterac
 import be.uzleuven.gc.logistics.GBSX.barcodeGenerator.infrastructure.fileInteractors.BarcodeWriter;
 import be.uzleuven.gc.logistics.GBSX.barcodeGenerator.model.BarcodeGeneratorArguments;
 import be.uzleuven.gc.logistics.GBSX.barcodeGenerator.model.BarcodeGeneratorParameters;
+import be.uzleuven.gc.logistics.GBSX.demultiplexer.application.distanceAlgorithms.HammingsDistance;
 import be.uzleuven.gc.logistics.GBSX.utils.exceptions.StopExcecutionException;
 import be.uzleuven.gc.logistics.GBSX.utils.enzyme.infrastructure.EnzymeFileParser;
 import be.uzleuven.gc.logistics.GBSX.utils.enzyme.model.Enzyme;
@@ -475,6 +476,23 @@ public class BarcodeGenerator {
             if (barcode.contains(otherBarcodes) || otherBarcodes.contains(barcode)){
                 return false;
             }
+            //calculate HammingsDistance of the barcodes + the possible enzyme restriction site combinations
+            int ham = 3;
+            for (String cutsites1 : enzyme.getInitialCutSiteRemnant()){
+                for (String cutsites2 : enzyme.getInitialCutSiteRemnant()){
+                    if ((barcode + cutsites1).length() > (otherBarcodes + cutsites2).length()){
+                        ham = HammingsDistance.calculateHammingsDistance((barcode + cutsites1).substring(0, (otherBarcodes + cutsites2).length()), 
+                                (otherBarcodes + cutsites2));
+                    }else{
+                        ham = HammingsDistance.calculateHammingsDistance((barcode + cutsites1), 
+                                (otherBarcodes + cutsites2).substring(0, (barcode + cutsites1).length()));
+                    }
+                    if (ham < 3){
+                        return false;
+                    }
+                }
+            }
+            
         }
         if (this.parameters.getNotUseSet().contains(barcode)){
             return false;
