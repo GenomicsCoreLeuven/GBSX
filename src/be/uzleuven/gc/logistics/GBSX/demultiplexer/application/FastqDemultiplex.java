@@ -900,45 +900,47 @@ public final class FastqDemultiplex {
             if (bestIndex[0] == -1 || bestIndex[0] > locationLength[0]){
                 bestIndex = locationLength;
             }
-        }
-        for (String enzyme : cutsites){
-            String endSequence = "";
-            int endSeqMismatches = 0;
-            endSequence = this.parameters.getCommonAdaptor().substring(0, this.parameters.getAdaptorCompareSize());
-            endSeqMismatches = this.parameters.getAdaptorLigaseMismatches();
-            if (endSeqMismatches < 0) endSeqMismatches = 0;
-            int[] locationLength = this.findingDistanceAlgorithm.indexOf(sequence, enzyme, endSequence, this.parameters.getAllowedMismatchesEnzyme(), endSeqMismatches);
-            
-            if (locationLength[0] == -1){
-                //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme (no adaptor)
-                for (int i = 0; i < this.parameters.getAdaptorCompareSize(); i++){
-                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i), enzyme, endSequence.substring(0, this.parameters.getAdaptorCompareSize() - i), this.parameters.getAllowedMismatchesEnzyme(), 0);
-                    if (newLocationLength[0] != -1){
-                        newLocationLength[0] = sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i + newLocationLength[0];
-                        locationLength = newLocationLength;
-                        i = this.parameters.getAdaptorCompareSize();
+        }else{
+            //GBS data, so check for enzyme cut site and adaptor
+            for (String enzyme : cutsites){
+                String endSequence = "";
+                int endSeqMismatches = 0;
+                endSequence = this.parameters.getCommonAdaptor().substring(0, this.parameters.getAdaptorCompareSize());
+                endSeqMismatches = this.parameters.getAdaptorLigaseMismatches();
+                if (endSeqMismatches < 0) endSeqMismatches = 0;
+                int[] locationLength = this.findingDistanceAlgorithm.indexOf(sequence, enzyme, endSequence, this.parameters.getAllowedMismatchesEnzyme(), endSeqMismatches);
+
+                if (locationLength[0] == -1){
+                    //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme (no adaptor)
+                    for (int i = 0; i < this.parameters.getAdaptorCompareSize(); i++){
+                        int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i), enzyme, endSequence.substring(0, this.parameters.getAdaptorCompareSize() - i), this.parameters.getAllowedMismatchesEnzyme(), 0);
+                        if (newLocationLength[0] != -1){
+                            newLocationLength[0] = sequence.length() - this.parameters.getAdaptorCompareSize() - enzyme.length() + i + newLocationLength[0];
+                            locationLength = newLocationLength;
+                            i = this.parameters.getAdaptorCompareSize();
+                        }
                     }
+
                 }
-                
-            }
-            if (locationLength[0] == -1){
-                //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme
-                for (int i = 0; i < enzyme.length(); i++){
-                    int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - enzyme.length() + i), enzyme.substring(0, enzyme.length() - i), 0);
-                    if (newLocationLength[0] != -1){
-                        newLocationLength[0] = sequence.length() - enzyme.length() + i + newLocationLength[0];
-                        locationLength = newLocationLength;
-                        i = enzyme.length();
+                if (locationLength[0] == -1){
+                    //if the sequence is search and no enzyme + adaptor is found, look at the end of the sequence for the enzyme
+                    for (int i = 0; i < enzyme.length(); i++){
+                        int[] newLocationLength = this.findingDistanceAlgorithm.indexOf(sequence.substring(sequence.length() - enzyme.length() + i), enzyme.substring(0, enzyme.length() - i), 0);
+                        if (newLocationLength[0] != -1){
+                            newLocationLength[0] = sequence.length() - enzyme.length() + i + newLocationLength[0];
+                            locationLength = newLocationLength;
+                            i = enzyme.length();
+                        }
                     }
+
                 }
-                
-            }
-            if ((locationLength[0] < bestIndex[0] && locationLength[0] != -1) || bestIndex[0] == -1){
-                bestIndex = locationLength;
-                bestIndex[1] = enzyme.length();
-                if (bestIndex[0] + enzyme.length() >= sequence.length()){
-                    bestIndex[0] = sequence.length();
-                    bestIndex[1] = 0;
+                if ((locationLength[0] < bestIndex[0] && locationLength[0] != -1) || bestIndex[0] == -1){
+                    bestIndex = locationLength;
+                    bestIndex[1] = enzyme.length();
+                    if (bestIndex[0] + enzyme.length() >= sequence.length()){
+                        bestIndex[0] = sequence.length();
+                        bestIndex[1] = 0;
+                    }
                 }
             }
         }
