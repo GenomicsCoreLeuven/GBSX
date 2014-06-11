@@ -517,11 +517,11 @@ public final class FastqDemultiplex {
         //find the next enzyme site (if there is any)
         int read1EndLocation = -1;
         int[] read1EndLocationLength = {-1, 0};
-        EnzymeComparator enzymeComparator = new EnzymeComparator();
-        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
+//        EnzymeComparator enzymeComparator = new EnzymeComparator();
+//        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
             read1EndLocationLength = this.findRead1EnzymeLocation(read1modifiedSequence, sample);
             read1EndLocation = read1EndLocationLength[0];
-        }
+//        }
         String read1optimalSequence = read1modifiedSequence;
         String read1optimalQuality = read1modifiedQuality;
         if (read1EndLocation != -1){
@@ -583,7 +583,7 @@ public final class FastqDemultiplex {
         if (read2secondEnzymeLocationLength[0] != -1){
             int read2secondEnzymeLocation = read2secondEnzymeLocationLength[0];
             //enzyme site found
-            if (this.parameters.keepCutSites()){
+            if (this.parameters.keepCutSites() && ! this.parameters.isRadData()){
                 //keep the enzyme sites
                 read2secondEnzymeLocation += read2secondEnzymeLocationLength[1];
             }
@@ -812,16 +812,16 @@ public final class FastqDemultiplex {
         //find the next enzyme site (if there is any)
         int read1EndLocation = -1;
         int[] read1EndLocationLength = {-1, 0};
-        EnzymeComparator enzymeComparator = new EnzymeComparator();
-        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
+//        EnzymeComparator enzymeComparator = new EnzymeComparator();
+//        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
             read1EndLocationLength = this.findRead1EnzymeLocation(read1modifiedSequence, sample);
             read1EndLocation = read1EndLocationLength[0];
-        }
+//        }
         String read1optimalSequence = read1modifiedSequence;
         String read1optimalQuality = read1modifiedQuality;
         if (read1EndLocation != -1){
             //compliment barcode found
-            if (this.parameters.keepCutSites()){
+            if (this.parameters.keepCutSites() && ! this.parameters.isRadData()){
                 //if the cutsites must be kept
                 read1EndLocation += read1EndLocationLength[1];
             }
@@ -887,14 +887,22 @@ public final class FastqDemultiplex {
         HashSet<String> cutsites = new HashSet<String>(sample.getEnzyme().getComplementCutSiteRemnant());
 
         int[] bestIndex = {-1, 0};
-        if (this.parameters.isRadData()){
+        EnzymeComparator enzymeComparator = new EnzymeComparator();
+        if (this.parameters.isRadData() || enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) == 0){
             //rad data, so check for adaptor (with out enzyme cut site)
             int adaptorMismatches = this.parameters.getAdaptorLigaseMismatches();
             if (adaptorMismatches == -1) adaptorMismatches = 0;
-            int[] locationLength = this.findingDistanceAlgorithm.indexOf(sequence, this.parameters.getCommonAdaptor().substring(0, this.parameters.getAdaptorCompareSize()), adaptorMismatches);
+            int[] locationLength = {-1, 0};
+            for(int mis = 0; mis <= adaptorMismatches && locationLength[0] != -1; mis++){
+                locationLength = this.findingDistanceAlgorithm.indexOf(sequence, this.parameters.getCommonAdaptor().substring(0, this.parameters.getAdaptorCompareSize()), mis);
+            }
             if (locationLength[0] == -1){
-                for (int adaptorSize = this.parameters.getAdaptorCompareSize(); adaptorSize >= 5 && locationLength[0] == -1; adaptorSize--){
-                    locationLength = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(sequence.length() - adaptorSize), this.parameters.getCommonAdaptor().substring(0, adaptorSize), adaptorMismatches);
+                int mis = adaptorMismatches;
+                for (int adaptorSize = this.parameters.getAdaptorCompareSize(); adaptorSize >= 1 && locationLength[0] == -1; adaptorSize--){
+                    if (adaptorSize < this.parameters.getAdaptorCompareSize() / 2){
+                        mis = 0;
+                    }
+                    locationLength = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(sequence.length() - adaptorSize), this.parameters.getCommonAdaptor().substring(0, adaptorSize), mis);
                 }
             }
             if (bestIndex[0] == -1 || bestIndex[0] > locationLength[0]){
@@ -1025,8 +1033,15 @@ public final class FastqDemultiplex {
                 
                 if (newplace[0] != -1){
 //                    place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() - extraAdaptorSearch + newplace[0]);
+//                    if(this.findingDistanceAlgorithm.isEquivalent(sequence.substring(sequence.length() - sample.getBarcode().length() + newplace[0]), sample.getComplementBarcode().substring(0, sample.getBarcode().length() + complementFoundEnzyme.length() - newplace[0]), this.parameters.getAllowedMismatchesBarcode(sample))){
+//                        place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() + newplace[0]);
+//                    }else{
+//                        newplace[0] = -1;
+//                    }
                     place[0] = (sequence.length() - complementFoundEnzyme.length() - sample.getBarcode().length() + newplace[0]);
-                }else{
+                }
+                else{
+//                if (newplace[0] == -1){
                     //find with part enzyme
                     for (int ei=0; ei < complementFoundEnzyme.length(); ei++){
                         newplace = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(sequence.length() - complementFoundEnzyme.length() + ei), complementFoundEnzyme.substring(0, complementFoundEnzyme.length() - ei), 0);
@@ -1041,7 +1056,7 @@ public final class FastqDemultiplex {
             return place;
         }else{
             EnzymeComparator enzymeComparator = new EnzymeComparator();
-            if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) == 0){
+            if (this.parameters.isRadData() || enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) == 0){
                 return new int[]{-1,0};
             }
             //uses complete digest option: look only for an enzyme cutsite
