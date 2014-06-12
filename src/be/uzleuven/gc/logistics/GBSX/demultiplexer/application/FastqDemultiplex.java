@@ -526,7 +526,7 @@ public final class FastqDemultiplex {
         String read1optimalQuality = read1modifiedQuality;
         if (read1EndLocation != -1){
             //compliment barcode found
-            if (this.parameters.keepCutSites()){
+            if (this.parameters.keepCutSites() && ! this.parameters.isRadData()){
                 //cutsites must be kept
                 read1EndLocation += read1EndLocationLength[1];
             }
@@ -544,22 +544,22 @@ public final class FastqDemultiplex {
         String read2modifiedQuality = read2.getQuality().substring(read2firstEnzymeLocation);
         if (this.parameters.isRadData()){
             //RAD data
-            if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, sample.getBarcode().length()), sample.getBarcode(), this.parameters.getAllowedMismatchesBarcode(sample))){
-                //possible barcode found
-                read2modifiedSequence = read2modifiedSequence.substring(sample.getBarcode().length());
-                read2modifiedQuality = read2modifiedQuality.substring(sample.getBarcode().length());
-                if (! this.parameters.keepCutSites()){
-                    //remove the enzyme site
-                    String foundEnzyme = "";
-                    for (String enzymeSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-                        if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, enzymeSite.length()), enzymeSite, this.parameters.getAllowedMismatchesEnzyme())){
-                            foundEnzyme = enzymeSite;
-                        }
-                    }
-                    read2modifiedSequence = read2modifiedSequence.substring(foundEnzyme.length());
-                    read2modifiedQuality = read2modifiedQuality.substring(foundEnzyme.length());
-                }
-            }
+//            if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, sample.getBarcode().length()), sample.getBarcode(), this.parameters.getAllowedMismatchesBarcode(sample))){
+//                //possible barcode found
+//                read2modifiedSequence = read2modifiedSequence.substring(sample.getBarcode().length());
+//                read2modifiedQuality = read2modifiedQuality.substring(sample.getBarcode().length());
+//                if (! this.parameters.keepCutSites()){
+//                    //remove the enzyme site
+//                    String foundEnzyme = "";
+//                    for (String enzymeSite : sample.getEnzyme().getInitialCutSiteRemnant()){
+//                        if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, enzymeSite.length()), enzymeSite, this.parameters.getAllowedMismatchesEnzyme())){
+//                            foundEnzyme = enzymeSite;
+//                        }
+//                    }
+//                    read2modifiedSequence = read2modifiedSequence.substring(foundEnzyme.length());
+//                    read2modifiedQuality = read2modifiedQuality.substring(foundEnzyme.length());
+//                }
+//            }
         }else{
             //GBS data
             if (! this.parameters.keepCutSites()){
@@ -583,7 +583,7 @@ public final class FastqDemultiplex {
         if (read2secondEnzymeLocationLength[0] != -1){
             int read2secondEnzymeLocation = read2secondEnzymeLocationLength[0];
             //enzyme site found
-            if (this.parameters.keepCutSites() && ! this.parameters.isRadData()){
+            if (this.parameters.keepCutSites()){
                 //keep the enzyme sites
                 read2secondEnzymeLocation += read2secondEnzymeLocationLength[1];
             }
@@ -898,11 +898,14 @@ public final class FastqDemultiplex {
             }
             if (locationLength[0] == -1){
                 int mis = adaptorMismatches;
-                for (int adaptorSize = this.parameters.getAdaptorCompareSize(); adaptorSize >= 1 && locationLength[0] == -1; adaptorSize--){
+                for (int adaptorSize = this.parameters.getAdaptorCompareSize(); adaptorSize >= 4 && locationLength[0] == -1; adaptorSize--){
                     if (adaptorSize < this.parameters.getAdaptorCompareSize() / 2){
                         mis = 0;
                     }
                     locationLength = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(sequence.length() - adaptorSize), this.parameters.getCommonAdaptor().substring(0, adaptorSize), mis);
+                    if (locationLength[0] != -1){
+                        locationLength[0] = locationLength[0] + (sequence.length() - adaptorSize);
+                    }
                 }
             }
             if (bestIndex[0] == -1 || bestIndex[0] > locationLength[0]){
