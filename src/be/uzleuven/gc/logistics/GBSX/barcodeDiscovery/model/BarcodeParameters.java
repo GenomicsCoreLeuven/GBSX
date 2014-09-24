@@ -35,7 +35,7 @@ public class BarcodeParameters implements Parameters{
     
     private HashMap<BarcodeArguments, String> arguments;
     private static final int MINIMUM_LENGTH = 6;
-    private static final int MAXIMUM_LENGTH = 10;
+    private static final int MAXIMUM_LENGTH = 16;
     private final static int MIN_BARCODE_OCCURANCE = 200;
     private final static int MAX_NUMBER_OF_BARCODES = 100;
     private final static int PERCENTAGE_OF_MISMATCH = 10;
@@ -328,7 +328,7 @@ public class BarcodeParameters implements Parameters{
         toHelp += "\t -f1 \t the name of the input file \n";
         toHelp += "Optional parameters:\n";
         toHelp += "\t -min \t the minimum length of the barcode (standard 6) \n";
-        toHelp += "\t -max \t the maximum length of the barcode (standard 10) \n";
+        toHelp += "\t -max \t the maximum length of the barcode (standard 16) \n";
         toHelp += "\t -gzip \t use gzip files as input and output (standard false) \n";
         toHelp += "\t -o \t the output directory (standard the directory of execution) \n";
         toHelp += "\t -ea \t Add enzymes from the given file (keeps the standard enzymes, and add the new) (enzyme file: no header, enzyme name tab cutsites (multiple cutsites are comma separeted)) (only use once, not use -er)" + "\n";

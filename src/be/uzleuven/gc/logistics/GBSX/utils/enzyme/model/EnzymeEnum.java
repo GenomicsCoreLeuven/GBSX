@@ -79,7 +79,7 @@ public enum EnzymeEnum implements Enzyme{
     
     NSPI ("NspI", new String[]{"CATGT", "CATGC"}),
     
-    NAN ("NAN", new String[]{""});
+    NAN ("NA", new String[]{""});
     
     private final String name;
     private final String[] initialCutSiteRemnant;

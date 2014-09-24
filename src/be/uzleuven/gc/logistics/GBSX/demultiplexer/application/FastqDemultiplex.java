@@ -50,7 +50,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -630,6 +629,8 @@ public final class FastqDemultiplex {
                     if (this.parameters.keepCutSites()){
                         if (this.findingDistanceAlgorithm.isEquivalent(read2optimalSequence.substring(0, sample.getPossibleEnzymeCutSiteLength()), expectedStartR2.substring(0, sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesEnzyme())
                                 && this.findingDistanceAlgorithm.isEquivalent(read2optimalSequence.substring(sample.getPossibleEnzymeCutSiteLength(), compareLength), expectedStartR2.substring(sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesBarcode(sample))){
+                            //is equivalent:(read2(0-cutsite), complement read1(0-cutsite) with allowed mismatches enzyme)
+                            //and is equivalent:(read2(cutsite-comparelength), complement read1(cutsite-comparelength) with allowed mismatches barcode)
                             //is same => trim R2
                             read2optimalSequence = read2optimalSequence.substring(0, read1optimalSequence.length());
                             read2optimalQuality = read2optimalQuality.substring(0, read1optimalSequence.length());

@@ -43,9 +43,6 @@ public class GBSsimulate {
         if (GBSsimulate.DEBUG){
             String input;
             input = "-help";
-            input = " -o /home/koen/Downloads/gbs_publication_test/test"
-                    + " -f /home/koen/Downloads/gbs_publication_test/chr21.out.fa"
-                    + " -b /home/koen/Downloads/gbs_publication_test/test_1/barcode_list.txt";
             args = input.split(" ");
         }
             
@@ -116,7 +113,7 @@ public class GBSsimulate {
                     if (args[i].equals("-l")){
                         this.readLength = Integer.parseInt(args[i + 1]);
                     }
-                    if (args[i].equals("-d")){
+                    if (args[i].equals("-rpl")){
                         this.readDepth = Integer.parseInt(args[i + 1]);
                     }
                     if (args[i].equals("-e")){
@@ -184,7 +181,7 @@ public class GBSsimulate {
         System.out.println("\t-p\tis paired end (optional, standard true)");
         System.out.println("\t-a\tcommon adapter (optional, AGATCGGAAGAGCG)");
         System.out.println("\t-l\tread length (optional, standard 100)");
-        System.out.println("\t-d\tread depth (optional, standard 6)");
+        System.out.println("\t-rpl\tread per locus (optional, standard 6)");
         System.out.println("\t-e\terrors (optional, standard true)");
         System.out.println("\t-b\tbarcode file");
         System.out.println();
