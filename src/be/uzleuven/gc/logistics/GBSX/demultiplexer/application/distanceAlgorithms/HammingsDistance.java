@@ -77,9 +77,9 @@ public class HammingsDistance {
         for (int index = 0; index < sequence1.length(); index++){
             if (sequence1.charAt(index) != sequence2.charAt(index)){
                 distance++;
-            }
-            if (distance > maxMismatch){
-                return false;
+                if (distance > maxMismatch){
+                    return false;
+                }
             }
         }
         return true;

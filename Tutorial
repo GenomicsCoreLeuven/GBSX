@@ -9,6 +9,8 @@ The used chromosomes were placed in the example folder, under A_chromosomes.
 
 The restriction enzyme used is ApekI. The cutsite is G^CWGC. More information about this enzyme can be found on https://www.neb.com/products/r0643-apeki.
 
+NOTE: for the comparison in the paper we only used chr21. THe comparison test was done on a variating number of samples and variating number of fragments (equal to the sequence depth).
+
 1) GBSX Digest
 For the usage of this perl module, you must have BioPerl installed (installation instructions on http://www.bioperl.org/wiki/Installing_BioPerl).
 

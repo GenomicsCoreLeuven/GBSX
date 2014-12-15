@@ -41,7 +41,7 @@ Mail: [genomicscore@uzleuven.be](mailto:genomicscore@uzleuven.be "")
 We ask that you cite this paper if you use GBSX in work that leads to 
 publication.
 
->    Herten,K et al. (2014) GBSX: a toolkit for experimental design and 
+>    Herten,K et al. (2015) GBSX: a toolkit for experimental design and 
 demultiplexing genotyping by sequencing experiments  
 
 status: submitted
@@ -175,7 +175,7 @@ phred scores are encoded):
   
   
   
-Possible Standard Enzymes for the info file: (NAN is no enzyme)  
+Possible Standard Enzymes for the info file: (NA is no enzyme)  
 * `ApeKI`  
 * `PstI`  
 * `EcoT22I`  
