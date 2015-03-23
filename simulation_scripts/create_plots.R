@@ -43,6 +43,7 @@ rownames(mean_matrix) <- c("Paired end demultiplex", "Paired end correct trimmed
 setEPS()
 postscript("complete_barplot.eps")
 par(mar=c(11.5,4.1,8,3), xpd=TRUE)
-barplot(mean_matrix, main="GBSX vs Stacks vs Sabre", beside=TRUE, col=c("gray1", "gray25", "gray50", "gray75"), las=2)
+barplot(mean_matrix, main="GBSX vs Stacks vs Sabre", beside=TRUE, col=c("gray1", "gray25", "gray50", "gray75"), las=2, axes=FALSE)
+axis(2,at=seq(0,1,0.2))
 legend("bottom", inset=c(0,-0.7), legend=rownames(mean_matrix), fill=c("gray1", "gray25", "gray50", "gray75"))
 dev.off()

@@ -42,9 +42,7 @@ We ask that you cite this paper if you use GBSX in work that leads to
 publication.
 
 >    Herten,K et al. (2015) GBSX: a toolkit for experimental design and 
-demultiplexing genotyping by sequencing experiments  
-
-status: submitted
+demultiplexing genotyping by sequencing experiments  BMC Bioinformatics 2015, 16:73 doi:10.1186/s12859-015-0514-3
 
 ## Help
 
