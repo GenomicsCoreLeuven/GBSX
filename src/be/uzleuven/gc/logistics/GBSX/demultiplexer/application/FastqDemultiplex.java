@@ -61,6 +61,7 @@ import java.util.logging.Logger;
 public final class FastqDemultiplex {
     
     private final int MAXIMUM_DISTANCE_BETWEEN_START_AND_BARCODE = 20;
+    private final int PROCESS_REPORTING_INTERVAL = 100000;
     
     private ArrayList<Sample> sampleList;
     private int longestBarcodeLength;
@@ -291,7 +292,12 @@ public final class FastqDemultiplex {
             FastqRead fastq2 = null;
             
             HashMap<String, FastqRead> readMap;
+            int process_count = 0;
             while (((readMap = fastqReader.next()) != null) && ((fastq1 = readMap.get("r1")) != null) && ((fastq2 = readMap.get("r2")) != null)){
+                process_count++;
+                if (process_count % this.PROCESS_REPORTING_INTERVAL == 0){
+                    System.out.println(process_count + " reads demultiplexed");
+                }
                 //read the next fastq line
                 try {
                     //try to parse the fastq
@@ -331,6 +337,8 @@ public final class FastqDemultiplex {
                     }
                 }
             }
+            
+            System.out.println(process_count + " reads demultiplexed");
             
             fastqReader.close();
             for (FastqPairBufferedWriter writer : sampleFiles.values()){
@@ -391,7 +399,12 @@ public final class FastqDemultiplex {
             
             //init vars needed in the loop to go furter
             FastqRead fastq1;
+            int process_count = 0;
             while ((fastq1 = fastq1Reader.next()) != null) {
+                process_count++;
+                if (process_count % this.PROCESS_REPORTING_INTERVAL == 0){
+                    System.out.println(process_count + " reads demultiplexed");
+                }
                 //read the next fastq line
                 try {
                     //try to parse the fastq
@@ -429,6 +442,7 @@ public final class FastqDemultiplex {
                 }  
             }
             
+            System.out.println(process_count + " reads demultiplexed");
             
             
             //all reads are parsed => close all files

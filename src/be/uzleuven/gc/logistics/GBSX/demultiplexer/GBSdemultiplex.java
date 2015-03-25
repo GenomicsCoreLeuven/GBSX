@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  */
 public class GBSdemultiplex {
     
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     public final static String VERSION = "GBSX v1.0";
     public final static String LICENCE = "GPLv3";
     
