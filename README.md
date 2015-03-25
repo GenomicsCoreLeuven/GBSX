@@ -233,3 +233,12 @@ results (standard: 200)
 See the Tutorial file and the example folder.
 
 
+
+## Change Logs
+
+v1.0
+* The original version
+
+v1.0.1
+* While demultiplexing, the number of demultiplexed reads are shown for 
+  every 100000 reads
