@@ -33,9 +33,12 @@ public class Sample implements Comparable<Sample> {
     
     private final String sampleID;
     private final Enzyme enzyme;
+    private final Enzyme enzyme2;
     private final String barcode;
+    private final String barcode2;
     private final String complementBarcode;
     private final HashSet<String> possibleEnzymeSites;
+    private final HashSet<String> possibleEnzyme2Sites;
     private int barcodeMismatches;
     
     /**
@@ -49,8 +52,12 @@ public class Sample implements Comparable<Sample> {
         this.sampleID = sampleID;
         //the used enzyme for this sample
         this.enzyme = enzyme;
+        //the used second enzyme for this sample (for double digest)
+        this.enzyme2 = enzyme;
         //the used barcode for this sample
         this.barcode = barcode;
+        //ths used second barcode (here not used)
+        this.barcode2 = null;
         //make the complement of the barcode
         this.complementBarcode = this.complementDNA(barcode);
         //saving the enzyme cut sites and the complement
@@ -58,6 +65,11 @@ public class Sample implements Comparable<Sample> {
         for (String enzymeSite : enzyme.getInitialCutSiteRemnant()){
             this.possibleEnzymeSites.add(enzymeSite);
             this.possibleEnzymeSites.add(this.complementDNA(enzymeSite));
+        }
+        this.possibleEnzyme2Sites = new HashSet();
+        for (String enzymeSite : enzyme.getInitialCutSiteRemnant()){
+            this.possibleEnzyme2Sites.add(enzymeSite);
+            this.possibleEnzyme2Sites.add(this.complementDNA(enzymeSite));
         }
         //save the mismatches of the barcode
         this.barcodeMismatches = -1;
@@ -68,15 +80,20 @@ public class Sample implements Comparable<Sample> {
      * @param sampleID String | the name of the sample
      * @param enzyme Enzyme | the enzyme used
      * @param barcode String | the barcode used
+     * @param barcode2 String | the second barcode used
      * @param barcodeMismatches int | the possible mismatches for the barcode for this sample
      */
-    public Sample(String sampleID, Enzyme enzyme, String barcode, int barcodeMismatches){
+    public Sample(String sampleID, Enzyme enzyme, Enzyme enzyme2, String barcode, String barcode2, int barcodeMismatches){
         //sample ID
         this.sampleID = sampleID;
         //the used enzyme for this sample
         this.enzyme = enzyme;
+        //the used second enzyme for this sample (for double digest)
+        this.enzyme2 = enzyme2;
         //the used barcode for this sample
         this.barcode = barcode;
+        //ths used second barcode
+        this.barcode2 = barcode2;
         //make the complement of the barcode
         this.complementBarcode = this.complementDNA(barcode);
         //saving the enzyme cut sites and the complement
@@ -85,8 +102,48 @@ public class Sample implements Comparable<Sample> {
             this.possibleEnzymeSites.add(enzymeSite);
             this.possibleEnzymeSites.add(this.complementDNA(enzymeSite));
         }
+        this.possibleEnzyme2Sites = new HashSet();
+        for (String enzymeSite : enzyme2.getInitialCutSiteRemnant()){
+            this.possibleEnzyme2Sites.add(enzymeSite);
+            this.possibleEnzyme2Sites.add(this.complementDNA(enzymeSite));
+        }
         //save the mismatches of the barcode
         this.barcodeMismatches = barcodeMismatches;
+    }
+    
+    /**
+     * 
+     * @param sampleID String | the name of the sample
+     * @param enzyme Enzyme | the enzyme used
+     * @param barcode String | the barcode used
+     * @param barcode2 String | the second barcode used
+     */
+    public Sample(String sampleID, Enzyme enzyme, Enzyme enzyme2, String barcode, String barcode2){
+        //sample ID
+        this.sampleID = sampleID;
+        //the used enzyme for this sample
+        this.enzyme = enzyme;
+        //the used second enzyme for this sample (for double digest)
+        this.enzyme2 = enzyme2;
+        //the used barcode for this sample
+        this.barcode = barcode;
+        //ths used second barcode
+        this.barcode2 = barcode2;
+        //make the complement of the barcode
+        this.complementBarcode = this.complementDNA(barcode);
+        //saving the enzyme cut sites and the complement
+        this.possibleEnzymeSites = new HashSet();
+        for (String enzymeSite : enzyme.getInitialCutSiteRemnant()){
+            this.possibleEnzymeSites.add(enzymeSite);
+            this.possibleEnzymeSites.add(this.complementDNA(enzymeSite));
+        }
+        this.possibleEnzyme2Sites = new HashSet();
+        for (String enzymeSite : enzyme2.getInitialCutSiteRemnant()){
+            this.possibleEnzyme2Sites.add(enzymeSite);
+            this.possibleEnzyme2Sites.add(this.complementDNA(enzymeSite));
+        }
+        //save the mismatches of the barcode
+        this.barcodeMismatches = -1;
     }
     
     /**
@@ -105,12 +162,30 @@ public class Sample implements Comparable<Sample> {
         return this.enzyme;
     }
     
+    
+    /**
+     * 
+     * @return Enzyme | the enzyme second of this sample 
+     */
+    public Enzyme getEnzyme2(){
+        return this.enzyme2;
+    }
+    
     /**
      * 
      * @return String | the name of the enzyme
      */
     public String getEnzymeName(){
         return this.enzyme.getName();
+    }
+    
+    
+    /**
+     * 
+     * @return String | the name of the second enzyme
+     */
+    public String getEnzyme2Name(){
+        return this.enzyme2.getName();
     }
     
     /**
@@ -124,10 +199,28 @@ public class Sample implements Comparable<Sample> {
     
     /**
      * 
+     * @return Collection of String | the remains of the cutsite after the cut (place found in the DNA afther cut) of the second enzyme
+     * @see Enzyme#getInitialCutSiteRemnant() 
+     */
+    private Collection<String> getEnzyme2CutSites(){
+        return this.enzyme2.getInitialCutSiteRemnant();
+    }
+    
+    /**
+     * 
      * @return HashSet of String | all remains of the cutsite after the cut AND the complements of this site
      */
     private HashSet<String> getAllPossibleEnzymeCutSites(){
         return this.possibleEnzymeSites;
+    }
+    
+    
+    /**
+     * 
+     * @return HashSet of String | all remains of the cutsite after the cut AND the complements of this site
+     */
+    private HashSet<String> getAllPossibleEnzyme2CutSites(){
+        return this.possibleEnzyme2Sites;
     }
     
     /**
@@ -143,10 +236,37 @@ public class Sample implements Comparable<Sample> {
     
     /**
      * 
+     * @return the length of the first found enzyme site
+     */
+    public int getPossibleEnzyme2CutSiteLength(){
+        for (String site : this.getAllPossibleEnzyme2CutSites()){
+            return site.length();
+        }
+        return 0;
+    }
+    
+    /**
+     * 
      * @return String | the barcode used to identify the sample 
      */
     public String getBarcode(){
         return this.barcode;
+    }
+    
+    /**
+     * 
+     * @return String | the second barcode used to identify the sample 
+     */
+    public String getBarcodeSecond(){
+        return this.barcode2;
+    }
+    
+    /**
+     * 
+     * @return boolean | true if there are 2 barcodes (on both ends), else false
+     */
+    public boolean has2barcodes(){
+        return this.barcode2 != null;
     }
     
     /**
@@ -196,7 +316,6 @@ public class Sample implements Comparable<Sample> {
      * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
      * @see String#compareTo(java.lang.String) 
      */
-    @Override
     public int compareTo(Sample sample) {
         return this.getSampleID().compareTo(sample.getSampleID());
     }

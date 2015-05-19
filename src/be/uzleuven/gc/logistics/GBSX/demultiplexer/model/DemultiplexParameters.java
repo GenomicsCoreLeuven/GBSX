@@ -38,6 +38,7 @@ public class DemultiplexParameters implements Parameters{
     //standard barcode adaptor (can be changed by using parameter -ca)
     private final static String COMMON_AND_BARCODED_ADAPTOR = "AGATCGGAAGAGCG";
     private EnzymeCollection enzymeCollection;
+    private boolean doubleBarcodes = false;
     
     public DemultiplexParameters(){
         this.arguments = new HashMap();
@@ -62,6 +63,21 @@ public class DemultiplexParameters implements Parameters{
         //this will automaticaly return the standard algorithm
         this.arguments.put(DemultiplexArguments.MISMATCH_ALGORITHM, FindingsAlgorithms.getStandard().getAlgorithmName());
         this.enzymeCollection = new EnzymeCollection();
+    }
+    
+    /**
+     * Changes the double barcodes setting to true
+     */
+    public void setDoubleBarcodes(){
+        this.doubleBarcodes = true;
+    }
+    
+    /**
+     * 
+     * @return the double barcodes status, true if double barcodes are used
+     */
+    public boolean useDoubleBarcodes(){
+        return this.doubleBarcodes;
     }
     
     /**
@@ -513,6 +529,7 @@ public class DemultiplexParameters implements Parameters{
         }else{
             toLog += "Paired end demultiplexing" + "\n";
         }
+        toLog += "Use double barcodes " + this.useDoubleBarcodes() + "\n";
         toLog += "\n";
         return toLog;
     }
@@ -527,7 +544,10 @@ public class DemultiplexParameters implements Parameters{
         String toHelp = "";
         toHelp += "These parameters are mandatory: " + "\n";
         toHelp += "\t -f1 \t the name and path of the fastq or fastq.gz file to demultiplex" + "\n";
-        toHelp += "\t -i \t the name and path of the info file. This is a tab delimeted file without headings, with three columns: sample, sequence of the barcode, name of the enzyme" + "\n";
+        toHelp += "\t -i \t the name and path of the info file. This is a tab delimeted file without headings, "
+                + "with three (or more) columns: sample, sequence of the barcode, name of the enzyme, "
+                + "name of the second enzyme (optional, can be an empty string), the second barcode (optional, can be an empty string),"
+                + "mismatches for the barcode (optional)" + "\n";
         toHelp += "\n";
         toHelp += "These parameters are optional: " + "\n";
         toHelp += "\t -f2 \t the name of the second fastq or fastq.gz file (only with paired-end sequencing)" + "\n";

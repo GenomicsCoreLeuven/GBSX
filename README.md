@@ -242,3 +242,6 @@ v1.0
 v1.0.1
 * While demultiplexing, the number of demultiplexed reads are shown for 
   every 100000 reads
+
+v1.1
+* Possible to simulate and demultiplex dual barcode experiments (in paired end modus only)

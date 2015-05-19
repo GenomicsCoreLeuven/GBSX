@@ -215,7 +215,11 @@ public class DemultiplexStats {
             }
             //write to statsString, and calculates possible stats
             statsString += "\n";
-            statsString += sample.getSampleID() + "\t" + sample.getBarcode() + "\t" + sample.getEnzyme().getName();
+            statsString += sample.getSampleID() + "\t" + sample.getBarcode();
+            if (sample.has2barcodes()){
+                statsString += "_" + sample.getBarcodeSecond();
+            }
+            statsString += "\t" + sample.getEnzyme().getName();
             statsString += "\t" + sampleTotal + "\t" + (sampleTotal / (double) reads_total);
             for (int index=0; index <= maxMismatch; index++){
                 double perc = 0.0;

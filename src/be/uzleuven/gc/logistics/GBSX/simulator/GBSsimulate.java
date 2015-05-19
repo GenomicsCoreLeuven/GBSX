@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  */
 public class GBSsimulate {
     
-    public final static String VERSION = "GBS Data Simulator v1.0";
+    public final static String VERSION = "GBS Data Simulator v2.0";
     public final static String LICENCE = "GLPv3";
     public final static boolean DEBUG = false;
     
@@ -55,7 +55,7 @@ public class GBSsimulate {
         this.parseParameters(args);
     }
     
-    ArrayList<String> barcodeList = new ArrayList();
+    ArrayList<Barcodes> barcodeList = new ArrayList();
     
     /**
      * parses the parameters and generates the help
@@ -141,7 +141,12 @@ public class GBSsimulate {
             String line;
             while((line = barcodeFileReader.readLine()) != null){
                 String[] linesplit = line.split("\t");
-                this.barcodeList.add(linesplit[0]);
+                String barcode1 = linesplit[1];
+                String barcode2 = "";
+                if (linesplit.length >= 5){
+                    barcode2 = linesplit[4];
+                }
+                this.barcodeList.add(new Barcodes(barcode1, barcode2));
             }
         
         } catch (FileNotFoundException ex) {
@@ -176,14 +181,13 @@ public class GBSsimulate {
                 + "a file with the errors per barcode");
         System.out.println();
         System.out.println("\t-o\tOutput directory");
-        System.out.println("\t-f\tfastafile");
-        System.out.println("\t-b\tbarcode file");
-        System.out.println("\t-p\tis paired end (optional, standard true)");
+        System.out.println("\t-f\tfastafile (sequences in the fasta file must be orientated as enzyme1 to enzyme2)");
+        System.out.println("\t-b\tbarcode file (output of the Barcode Generator)");
+        System.out.println("\t-p\tis paired end (optional, standard true)(dual barcodes are only possible in the paired end mode)");
         System.out.println("\t-a\tcommon adapter (optional, AGATCGGAAGAGCG)");
         System.out.println("\t-l\tread length (optional, standard 100)");
         System.out.println("\t-rpl\tread per locus (optional, standard 6)");
         System.out.println("\t-e\terrors (optional, standard true)");
-        System.out.println("\t-b\tbarcode file");
         System.out.println();
         System.out.println();
         System.out.println("Developed by the Genomics Core Leuven 2014");
@@ -224,28 +228,21 @@ public class GBSsimulate {
         FastqBufferedWriter outputWriter = new FastqBufferedWriter(new File(filePathFastq), false);
         FastaRead fastaRead;
         while ((fastaRead = this.fastaReader.next()) != null){
-            for (String barcode : this.barcodeList){
+            for (Barcodes barcode : this.barcodeList){
                 String originalSequence = fastaRead.getSequence();
-                for (int i=0; i < (this.readDepth / 2); i++){
+                for (int i=0; i < this.readDepth; i++){
                     //normal sequence
                     String sequenceToUse = originalSequence;
-                    String sequence = barcode + sequenceToUse + this.commonAdapter;
-                    FastqRead fastq = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence, barcode, false);
-                    outputWriter.write(fastq);
-                }
-                for (int i=(this.readDepth / 2); i < (this.readDepth); i++){
-                    //reverse complement
-                    String sequenceToUse = originalSequence;
-                    String sequence = barcode + sequenceToUse + this.commonAdapter;
-                    FastqRead fastq = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence, barcode, false);
+                    String sequence = barcode.getBarcode1() + sequenceToUse + this.commonAdapter;
+                    FastqRead fastq = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode.getBarcode1(), sequence, barcode.getBarcode1(), false);
                     outputWriter.write(fastq);
                 }
             }
         }
         outputWriter.close();
         List<String> tmpBarcodeList = new ArrayList();
-        for (String barcode : this.barcodeList){
-            tmpBarcodeList.add(barcode);
+        for (Barcodes barcode : this.barcodeList){
+            tmpBarcodeList.add(barcode.getBarcode1());
         }
         Collections.sort(tmpBarcodeList);
         String[] barcodeOrder = tmpBarcodeList.toArray(new String[tmpBarcodeList.size()]);
@@ -261,38 +258,34 @@ public class GBSsimulate {
      * @throws FileNotFoundException
      * @throws IOException 
      */
+    
+
     private void simulatePaired() throws FileNotFoundException, IOException{
         String filePathFastq1 = this.outputDir + System.getProperty("file.separator") + "output.R1.fastq";
         String filePathFastq2 = this.outputDir + System.getProperty("file.separator") + "output.R2.fastq";
         FastqPairBufferedWriter outputWriter = new FastqPairBufferedWriter(new File(filePathFastq1), new File(filePathFastq2), false);
         FastaRead fastaRead;
         while ((fastaRead = this.fastaReader.next()) != null){
-            for (String barcode : this.barcodeList){
+            for (Barcodes barcode : this.barcodeList){
                 String originalSequence = fastaRead.getSequence();
-                for (int i=0; i < (this.readDepth / 2); i++){
+                for (int i=0; i < this.readDepth; i++){
                     String sequenceToUse = originalSequence;
-                    String sequence = barcode + sequenceToUse + this.commonAdapter;
-                    String sequence2 = BasePair.getComplementSequence(sequenceToUse) + BasePair.getComplementSequence(barcode) + this.commonAdapter;
+                    String barcodeSeq = barcode.getBarcode1() + sequenceToUse + BasePair.getComplementSequence(barcode.getBarcode2());
+                    String sequence = barcodeSeq + this.commonAdapter;
+                    String sequence2 = BasePair.getComplementSequence(barcodeSeq) + this.commonAdapter;
                     
-                    FastqRead fastq1 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence, barcode, false);
-                    FastqRead fastq2 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence2, barcode, true);
-                    outputWriter.write(fastq1, fastq2);
-                }
-                for (int i=(this.readDepth / 2); i < (this.readDepth); i++){
-                    String sequenceToUse = originalSequence;
-                    String sequence = barcode + BasePair.getComplementSequence(sequenceToUse) + this.commonAdapter;
-                    String sequence2 = sequenceToUse + BasePair.getComplementSequence(barcode) + this.commonAdapter;
-                    
-                    FastqRead fastq1 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence, barcode, false);
-                    FastqRead fastq2 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode, sequence2, barcode, true);
+                    FastqRead fastq1 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode.getBarcode1() + "_" + barcode.getBarcode2(), 
+                            sequence, barcode.getBarcode1() + "_" + barcode.getBarcode2(), false);
+                    FastqRead fastq2 = this.createFastq(fastaRead.getDescription() + "-" + i + "|" + barcode.getBarcode1() + "_" + barcode.getBarcode2(),
+                            sequence2, barcode.getBarcode1() + "_" + barcode.getBarcode2(), true);
                     outputWriter.write(fastq1, fastq2);
                 }
             }
         }
         outputWriter.close();
         List<String> tmpBarcodeList = new ArrayList();
-        for (String s : this.barcodeList){
-            tmpBarcodeList.add(s);
+        for (Barcodes barcode : this.barcodeList){
+            tmpBarcodeList.add(barcode.getBarcode1() + "_" + barcode.getBarcode2());
         }
         Collections.sort(tmpBarcodeList);
         String[] barcodeOrder = tmpBarcodeList.toArray(new String[tmpBarcodeList.size()]);
@@ -480,5 +473,29 @@ public class GBSsimulate {
         
     }
     
+    private class Barcodes{
+        
+        private final String barcode1;
+        private final String barcode2;
+        
+        public Barcodes(String barcode){
+            this.barcode1 = barcode;
+            this.barcode2 = "";
+        }
+        
+        public Barcodes(String barcode1, String barcode2){
+            this.barcode1 = barcode1;
+            this.barcode2 = barcode2;
+        }
+        
+        public String getBarcode1(){
+            return this.barcode1;
+        }
+        
+        public String getBarcode2(){
+            return this.barcode2;
+        }
+        
+    }
     
 }

@@ -67,9 +67,38 @@ public class InfoFileParser {
             Enzyme enzyme = this.enzymeCollection.getEnzyme(splitedLine[2]);
             if (enzyme != null){
                 if (splitedLine.length > 3){
-                    int mismatch = Integer.parseInt(splitedLine[3]);
-                    Sample newSample = new Sample(splitedLine[0], enzyme, splitedLine[1], mismatch);
-                    sampleArrayList.add(newSample);
+                    if (splitedLine.length == 4){
+                        Enzyme enzyme2 = enzyme;
+                        if (! splitedLine[3].equals("")){
+                            enzyme2 = this.enzymeCollection.getEnzyme(splitedLine[3]);
+                        }
+                        String barcode2 = null;
+                        Sample newSample = new Sample(splitedLine[0], enzyme, enzyme2, splitedLine[1], barcode2);
+                        sampleArrayList.add(newSample);
+                    }else if (splitedLine.length == 5){
+                        Enzyme enzyme2 = enzyme;
+                        if (! splitedLine[3].equals("")){
+                            enzyme2 = this.enzymeCollection.getEnzyme(splitedLine[3]);
+                        }
+                        String barcode2 = null;
+                        if (! splitedLine[4].equals("")){
+                            barcode2 = splitedLine[4];
+                        }
+                        Sample newSample = new Sample(splitedLine[0], enzyme, enzyme2, splitedLine[1], barcode2);
+                        sampleArrayList.add(newSample);
+                    }else{
+                        int mismatch = Integer.parseInt(splitedLine[5]);
+                        String barcode2 = null;
+                        if (! splitedLine[2].equals("")){
+                            barcode2 = splitedLine[2];
+                        }
+                        Enzyme enzyme2 = enzyme;
+                        if (! splitedLine[4].equals("")){
+                            enzyme2 = this.enzymeCollection.getEnzyme(splitedLine[4]);
+                        }
+                        Sample newSample = new Sample(splitedLine[0], enzyme, enzyme2, splitedLine[1], barcode2, mismatch);
+                        sampleArrayList.add(newSample);
+                    }
                 }else{
                     Sample newSample = new Sample(splitedLine[0], enzyme, splitedLine[1]);
                     sampleArrayList.add(newSample);
