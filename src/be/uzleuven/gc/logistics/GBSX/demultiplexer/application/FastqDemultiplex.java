@@ -208,16 +208,6 @@ public final class FastqDemultiplex {
             Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("Couldn't open the info file", ex);
         }
-        try {
-            //Open log file
-            this.loggerFile = new LoggerFile(this.parameters);
-        } catch (IOException ex) {
-            Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException("Couldn't create a log file.", ex);
-        } catch (ErrorInLogException ex){
-            Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
-            throw new RuntimeException("Couldn't create a log file.", ex);
-        }
         this.findingDistanceAlgorithm = new FindingDistanceAlgorithm(this.parameters.getFindingsAlgorithm());
         this.correctionLog = new CorrectionLog(this.sampleList, this.loggerFile);
         //check if all are simple, or all are double
@@ -229,6 +219,7 @@ public final class FastqDemultiplex {
         }
         if (doubleBarcodeCount != 0 && doubleBarcodeCount < this.sampleList.size()){
             //if a mix of simple and double, throw an error
+            System.err.println("Mix of single and double barcodes found.");
             throw new RuntimeException("Mix of single and double barcodes found.");
         }
         //double barcodes only possible with paired end sequencing
@@ -236,8 +227,19 @@ public final class FastqDemultiplex {
             this.parameters.setDoubleBarcodes();
             if(this.parameters.getFastqFile2() == null){
                 //single end demultiplex
+                System.err.println("Use Double Barcodes, but no paired end fastq file found.");
             throw new RuntimeException("Use Double Barcodes, but no paired end fastq file found.");
             }
+        }
+        try {
+            //Open log file
+            this.loggerFile = new LoggerFile(this.parameters);
+        } catch (IOException ex) {
+            Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Couldn't create a log file.", ex);
+        } catch (ErrorInLogException ex){
+            Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException("Couldn't create a log file.", ex);
         }
     }
 
@@ -281,6 +283,7 @@ public final class FastqDemultiplex {
      */
     private void processPairEndFastqFiles(){
         //open the files and the reader
+        System.out.println("USE DUAL BARCODING: " + this.parameters.useDoubleBarcodes());
         File fastqFile1 = new File(this.parameters.getFastqFile1());
         File fastqFile2 = new File(this.parameters.getFastqFile2());
         try {

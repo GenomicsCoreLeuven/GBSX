@@ -38,7 +38,7 @@ public class DemultiplexParameters implements Parameters{
     //standard barcode adaptor (can be changed by using parameter -ca)
     private final static String COMMON_AND_BARCODED_ADAPTOR = "AGATCGGAAGAGCG";
     private EnzymeCollection enzymeCollection;
-    private boolean doubleBarcodes = false;
+    private boolean doubleBarcodes;
     
     public DemultiplexParameters(){
         this.arguments = new HashMap();
@@ -63,6 +63,7 @@ public class DemultiplexParameters implements Parameters{
         //this will automaticaly return the standard algorithm
         this.arguments.put(DemultiplexArguments.MISMATCH_ALGORITHM, FindingsAlgorithms.getStandard().getAlgorithmName());
         this.enzymeCollection = new EnzymeCollection();
+        this.doubleBarcodes = false;
     }
     
     /**
