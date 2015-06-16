@@ -107,8 +107,11 @@ Like used in GBS, RAD, ... protocols.
 These parameters are mandatory:   
 *    `-f1`    the name and path of the fastq or fastq.gz file to demultiplex  
 *    `-i`    the name and path of the info file. This is a tab delimeted file 
-without headings, with three columns: sample, sequence of the barcode, name of 
-the enzyme  
+without headings, with three (or more) columns: sample, sequence of the barcode, 
+name of the enzyme, name of the second enzyme (optional, can be an empty 
+string), the second barcode (optional, can be an empty string),mismatches 
+for the barcode (optional)
+ 
   
 These parameters are optional:   
 *    `-f2`    the name of the second fastq or fastq.gz file (only with 
