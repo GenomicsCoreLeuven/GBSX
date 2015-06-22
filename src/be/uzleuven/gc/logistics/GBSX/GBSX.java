@@ -35,7 +35,7 @@ import be.uzleuven.gc.logistics.GBSX.utils.exceptions.StopExcecutionException;
 public class GBSX {
     
     public static final boolean DEBUG = false;
-    public final static String VERSION = "GBSX v1.1.1";
+    public final static String VERSION = "GBSX v1.1.2";
     private final static String LICENCE = "GPLv3";
     
     /**

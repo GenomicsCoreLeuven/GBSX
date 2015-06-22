@@ -1441,51 +1441,6 @@ public final class FastqDemultiplex {
         }
     }
     
-    
-    /**
-     * search for the best barcode + enzyme combination in the given sequence
-     * <br> uses all known samples, and tries to find the barcode-enzyme combination in front of the sequence
-     * <br> returns null if no combination is found
-     * <br> returns a SampleBarcodeCombination of the best found sample and the barcode-enzyme combination
-     * @param sequence String | the sequence to search
-     * @return null if no best combination is found, else SampleBarcodeCombination of the best combination
-     */
-    private SampleBarcodeCombination findBestBarcode(String sequence){
-        //sample, barcode-enzyme and location init
-        Sample bestSample = null;
-        String bestEnzymeCutSite = "";
-        int bestLocation = -1;
-        int barcodelength = 0;
-        int enzymelength = 0;
-        //try every sample
-        for (Sample sample : this.sampleList){
-            //try every barcode
-            String barcode = sample.getBarcode();
-            for (String enzymecutsite : sample.getEnzyme().getInitialCutSiteRemnant()){
-                //try to find the location of the barcode (-1 is returned if the barcode isn't found)
-                int location = sequence.indexOf(barcode + enzymecutsite);
-                if (location != -1){
-                    //barcode found
-                    if (bestLocation == -1 || location < bestLocation){
-                        //location is beter then previous one
-                        bestSample = sample;
-                        bestEnzymeCutSite = enzymecutsite;
-                        bestLocation = location;
-                        barcodelength = barcode.length();
-                        enzymelength = enzymecutsite.length();
-                    }
-                }
-            }
-        }
-        if (bestSample == null){
-            //no combination found
-            return null;
-        }
-        //return the combination
-        return new SampleBarcodeCombination(bestSample, bestEnzymeCutSite, bestLocation, 0, barcodelength, enzymelength);
-        
-    }
-    
     /**
      * looks at the sequences first basepairs to determenate if there is a barcode + enzyme combination possible
      * <br> the hammings distance is used to allow mismatches.
@@ -1497,6 +1452,7 @@ public final class FastqDemultiplex {
     private SampleBarcodeCombination findGBSBarcode(String sequence, int startDistance){
         //for every distance
         for (int distance = 0; distance <= startDistance && distance <= this.MAXIMUM_DISTANCE_BETWEEN_START_AND_BARCODE; distance++){
+            HashSet<SampleBarcodeCombination> foundSampleSet = new HashSet<SampleBarcodeCombination>();
             //try every sample
             for (Sample sample : this.sampleList){
                 //try every barcode
@@ -1523,9 +1479,24 @@ public final class FastqDemultiplex {
                                     return null;
                                 }
                             }
-                            return new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]);
+                            foundSampleSet.add(new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]));
+//                            return new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]);
                         }
                     }
+                }
+            }
+            
+            //found possible sampleBarcode combinations
+            if (foundSampleSet.isEmpty()){
+                return null;
+            }else {
+                //only 1 barcode
+                if (foundSampleSet.size() == 1){
+                    //found exact 1 possibility == report
+                    return foundSampleSet.iterator().next();
+                }else{
+                    //found multiple possibilities == error
+                    return null;
                 }
             }
         }

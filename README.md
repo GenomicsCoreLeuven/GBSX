@@ -248,3 +248,12 @@ v1.0.1
 
 v1.1
 * Possible to simulate and demultiplex dual barcode experiments (in paired end modus only)
+* Updated barcode recognition for paired end modus in the demultiplexer: when a read can be assigned to multiple samples, 
+the read is considered as unvalid (previous was first sample)
+
+v1.1.1
+* Updated output and stats for dual barcode experiments
+
+v1.1.2
+* Updated barcode recognition for single read modus in the demultiplexer: when a read can be assigned to multiple samples, 
+the read is considered as unvalid (previous was first sample)
