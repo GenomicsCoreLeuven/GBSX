@@ -79,6 +79,8 @@ public enum EnzymeEnum implements Enzyme{
     
     NSPI ("NspI", new String[]{"CATGT", "CATGC"}),
     
+    AVAII ("AvaII", new String[]{"GACC", "GTCC"}),
+    
     NAN ("NA", new String[]{""});
     
     private final String name;

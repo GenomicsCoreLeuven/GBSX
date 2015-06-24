@@ -257,3 +257,6 @@ v1.1.1
 v1.1.2
 * Updated barcode recognition for single read modus in the demultiplexer: when a read can be assigned to multiple samples, 
 the read is considered as unvalid (previous was first sample)
+
+v1.1.3
+* On request added the enzyme AvaII
