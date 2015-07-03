@@ -563,11 +563,11 @@ public class DemultiplexParameters implements Parameters{
         toHelp += "\t -n \t keep sequences where N occurs as nucleotide (standard true)" + "\n";
         toHelp += "\t -ca \t the common adaptor used in the sequencing (standard (only first piece) AGATCGGAAGAGCG) currently only used for adaptor ligase see -al and when -rad is true) (minimum length is 10)" + "\n";
         toHelp += "\t -s \t the posible distance of the start. This is the distance count from the start of the read to the first basepair of the barcode or enzyme (standard 0, maximum 20)" + "\n";
-        toHelp += "\t -cc \t Checks the complete read for the enzyme (if false, stops at the first possible enzyme cutsite) (use values true or false, standard is true) if used, the sequence after the enzyme site is compared to the adaptors, if the first basepairs of the sequence are compaired to the first basepairs of the adaptor" + "\n";
+        //toHelp += "\t -cc \t Checks the complete read for the enzyme (if false, stops at the first possible enzyme cutsite) (use values true or false, standard is true) if used, the sequence after the enzyme site is compared to the adaptors, if the first basepairs of the sequence are compaired to the first basepairs of the adaptor" + "\n";
         toHelp += "\t -kc \t Keep the enzyme cut-site remains (standard true)" + "\n";
         toHelp += "\t -ea \t Add enzymes from the given file (keeps the standard enzymes, and add the new) (enzyme file: no header, enzyme name tab cutsites (multiple cutsites are comma separeted)) (only use once, not use -er)" + "\n";
         toHelp += "\t -er \t Replace enzymes from the given file (don't keep the standard enzymes) (enzyme file: no header, enzyme name tab cutsites (multiple cutsites are comma separeted)) (only use once, not use -ea)" + "\n";
-        toHelp += "\t -al \t check for adaptor ligase: no (for no check) or a positive integer (starts at 0), for the number of mismatches (only checks 10 basepairs of the adaptor), standard 1" + "\n";
+        //toHelp += "\t -al \t check for adaptor ligase: no (for no check) or a positive integer (starts at 0), for the number of mismatches (only checks 10 basepairs of the adaptor), standard 1" + "\n";
         toHelp += "\t -scb \t Use self correcting barcodes (barcodes created by the barcodeGenerator) (standard false)" + "\n";
         toHelp += "\t -malg \t the used algorithm to find mismatches and indels, possible algorithms (see README): " + "\n";
         for (FindingsAlgorithms algorithm : FindingsAlgorithms.values()){

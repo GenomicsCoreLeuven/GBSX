@@ -38,6 +38,8 @@ import be.uzleuven.gc.logistics.GBSX.utils.enzyme.model.Enzyme;
 import be.uzleuven.gc.logistics.GBSX.utils.fastq.model.FastqParts;
 import be.uzleuven.gc.logistics.GBSX.demultiplexer.model.DemultiplexArguments;
 import be.uzleuven.gc.logistics.GBSX.demultiplexer.model.DemultiplexParameters;
+import be.uzleuven.gc.logistics.GBSX.demultiplexer.model.ProcessedFragment;
+import be.uzleuven.gc.logistics.GBSX.demultiplexer.model.SampleBarcodeCombination;
 import be.uzleuven.gc.logistics.GBSX.utils.enzyme.model.EnzymeComparator;
 import be.uzleuven.gc.logistics.GBSX.utils.enzyme.model.EnzymeEnum;
 import be.uzleuven.gc.logistics.GBSX.utils.fastq.infrastructure.FastqPairBufferedReader;
@@ -78,6 +80,7 @@ public final class FastqDemultiplex {
      * this makes the bases for the demultiplexing. The given array contains all the needed arguments.
      * <br> If not, there will be thrown exceptions like IllegalArgumentException or RunTimeException. This will end the program and the JVM on a correct way
      * @param args String[] | all the arguments needed for the excecution. 
+     * @throws be.uzleuven.gc.logistics.GBSX.utils.exceptions.StopExcecutionException 
      */
     public FastqDemultiplex(String[] args) throws StopExcecutionException{
         this.parameters = new DemultiplexParameters();
@@ -322,7 +325,7 @@ public final class FastqDemultiplex {
                 //read the next fastq line
                 try {
                     //try to parse the fastq
-                    ProcessedFragment newReads = this.parseFastqRead_new(fastq1, fastq2);
+                    ProcessedFragment newReads = this.parseFastqRead(fastq1, fastq2);
                     //if a read is empty: correct it
                     if (newReads.getRead1().getSequence().equals("")){
                         newReads = new ProcessedFragment(newReads.getSample(), new FastqRead(newReads.getRead1().getDescription(), "N", "#"), newReads.getRead2(), newReads.getMismatch());
@@ -498,7 +501,7 @@ public final class FastqDemultiplex {
             Logger.getLogger(FastqDemultiplex.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+        
     /**
      * this method gets two reads from a pair-end fastq file. 
      * <br> Read1 is from the first read, Read2 is from the reverse read
@@ -522,318 +525,6 @@ public final class FastqDemultiplex {
      * @see ProcessedFragment
      */
     private ProcessedFragment parseFastqRead(FastqRead read1, FastqRead read2) throws InvalidReadException{
-        //search for the optimal barcode
-        //SampleBarcodeCombination sampleBarcodeCombination = this.findBestBarcode(read1.getSequence());
-        SampleBarcodeCombination sampleBarcodeCombination = this.findGBSBarcode(read1.getSequence(), this.parameters.getStartDistance());
-        if (sampleBarcodeCombination == null){
-            //no optimal barcode found in the first read
-            throw new InvalidReadException(read1, read2, InvalidReadEnum.READ1);
-        }
-        Sample sample = sampleBarcodeCombination.getSample();
-        String barcodeEnzyme = sampleBarcodeCombination.getSample().getBarcode();
-        String enzymeCutsite = sampleBarcodeCombination.getEnzymeCutsite();
-        int barcodeEnzymeLength = sampleBarcodeCombination.getLengthFoundBarcode();
-        if (! this.parameters.keepCutSites()){
-            //the cutsite mustn't be kept
-            barcodeEnzyme += sampleBarcodeCombination.getEnzymeCutsite();
-            barcodeEnzymeLength += sampleBarcodeCombination.getLengthFoundEnzyme();
-        }
-        //remove the barcode and the enzyme site
-        int read1BarcodeLocation = sampleBarcodeCombination.getLocation();
-        String read1modifiedSequence = read1.getSequence().substring(read1BarcodeLocation + barcodeEnzymeLength, read1.getSequence().length() - (this.longestBarcodeLength - sample.getBarcode().length()));
-        String read1modifiedQuality = read1.getQuality().substring(read1BarcodeLocation + barcodeEnzymeLength, read1.getSequence().length() - (this.longestBarcodeLength - sample.getBarcode().length()));
-        
-        if (this.parameters.keepCutSites()){
-            //add the cutsite to the barcodeEnzyme when not already added (to have the correct complement)
-            barcodeEnzyme += sampleBarcodeCombination.getEnzymeCutsite();
-        }
-        
-        //find the next enzyme site (if there is any)
-        int read1EndLocation = -1;
-        int[] read1EndLocationLength = {-1, 0};
-//        EnzymeComparator enzymeComparator = new EnzymeComparator();
-//        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
-            read1EndLocationLength = this.findRead1EnzymeLocation(read1modifiedSequence, sample);
-            read1EndLocation = read1EndLocationLength[0];
-//        }
-        String read1optimalSequence = read1modifiedSequence;
-        String read1optimalQuality = read1modifiedQuality;
-        if (read1EndLocation != -1){
-            //compliment barcode found
-            if (this.parameters.keepCutSites() && ! this.parameters.isRadData()){
-                //cutsites must be kept
-                read1EndLocation += read1EndLocationLength[1];
-            }
-            read1optimalSequence = read1modifiedSequence.substring(0, read1EndLocation);
-            read1optimalQuality = read1modifiedQuality.substring(0, read1EndLocation);
-        }
-        
-        
-        //parsing of read2
-        //find the first enzyme location
-        
-        //just cut the first basepairs because these will be the enzyme site
-        int read2firstEnzymeLocation = 0;
-        String read2modifiedSequence = read2.getSequence().substring(read2firstEnzymeLocation);
-        String read2modifiedQuality = read2.getQuality().substring(read2firstEnzymeLocation);
-        if (this.parameters.isRadData()){
-            //RAD data
-//            if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, sample.getBarcode().length()), sample.getBarcode(), this.parameters.getAllowedMismatchesBarcode(sample))){
-//                //possible barcode found
-//                read2modifiedSequence = read2modifiedSequence.substring(sample.getBarcode().length());
-//                read2modifiedQuality = read2modifiedQuality.substring(sample.getBarcode().length());
-//                if (! this.parameters.keepCutSites()){
-//                    //remove the enzyme site
-//                    String foundEnzyme = "";
-//                    for (String enzymeSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-//                        if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, enzymeSite.length()), enzymeSite, this.parameters.getAllowedMismatchesEnzyme())){
-//                            foundEnzyme = enzymeSite;
-//                        }
-//                    }
-//                    read2modifiedSequence = read2modifiedSequence.substring(foundEnzyme.length());
-//                    read2modifiedQuality = read2modifiedQuality.substring(foundEnzyme.length());
-//                }
-//            }
-        }else{
-            //GBS data
-            if (! this.parameters.keepCutSites()){
-                //remove the enzyme site
-                String foundEnzyme = "";
-                for (String enzymeSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-                    if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, enzymeSite.length()), enzymeSite, this.parameters.getAllowedMismatchesEnzyme())){
-                        foundEnzyme = enzymeSite;
-                    }
-                }
-                read2modifiedSequence = read2modifiedSequence.substring(foundEnzyme.length());
-                read2modifiedQuality = read2modifiedQuality.substring(foundEnzyme.length());
-            }
-        }
-        
-        //find the next enzyme site (if there is any)
-        //String complementBarcodeEnzyme = BasePair.getComplementSequence(barcodeEnzyme);
-        int[] read2secondEnzymeLocationLength = this.findRead2EnzymeLocation(read2modifiedSequence, sample, enzymeCutsite);
-        String read2optimalSequence = read2modifiedSequence;
-        String read2optimalQuality = read2modifiedQuality;
-        if (read2secondEnzymeLocationLength[0] != -1){
-            int read2secondEnzymeLocation = read2secondEnzymeLocationLength[0];
-            //enzyme site found
-            if (this.parameters.keepCutSites()){
-                //keep the enzyme sites
-                read2secondEnzymeLocation += read2secondEnzymeLocationLength[1];
-            }
-            read2optimalSequence = read2modifiedSequence.substring(0, read2secondEnzymeLocation);
-            read2optimalQuality = read2modifiedQuality.substring(0, read2secondEnzymeLocation);
-        }
-        
-        
-        //size selection
-        boolean trimedR1 = false;
-        boolean trimedR2 = false;
-        int lengthR1 = read1optimalSequence.length();
-        int lengthR2 = read2optimalSequence.length();
-        String sequenceError = "TRIM\t" + "trimok" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length();
-        
-        
-        if (read1optimalSequence.length() != read1.getSequence().length() - this.longestBarcodeLength){
-            trimedR1 = true;
-        }
-        if (read2optimalSequence.length() != read2.getSequence().length()){
-            trimedR2 = true;
-        }
-        
-        if (! trimedR1 && ! trimedR2){
-            //both original => ok
-            this.correctionLog.addCorrecterTrimOk(sample);
-        }else if (! trimedR1 && read2optimalSequence.length() >= read1optimalSequence.length()){
-            //R1 is original, R2 is trimed, but same length or longer => ok
-            this.correctionLog.addCorrecterTrimOk(sample);
-        }else if (read1optimalSequence.length() == read2optimalSequence.length()){
-            //R1 and R2 are same length => OK
-            this.correctionLog.addCorrecterTrimOk(sample);
-        }else{
-            int compareLength = this.longestBarcodeLength;
-            if (this.parameters.keepCutSites()){
-                compareLength += sample.getPossibleEnzymeCutSiteLength();
-            }
-            //R1 and R2 have different sizes, find lowest and check
-            if (read1optimalSequence.length() < read2optimalSequence.length()){
-                //R1 is shortest
-                if (read1optimalSequence.length() > compareLength){
-                    String read1end = read1optimalSequence.substring(read1optimalSequence.length() - compareLength, read1optimalSequence.length());
-                    String expectedStartR2 = BasePair.getComplementSequence(read1end);
-                    if (this.parameters.keepCutSites()){
-                        if (this.findingDistanceAlgorithm.isEquivalent(read2optimalSequence.substring(0, sample.getPossibleEnzymeCutSiteLength()), expectedStartR2.substring(0, sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesEnzyme())
-                                && this.findingDistanceAlgorithm.isEquivalent(read2optimalSequence.substring(sample.getPossibleEnzymeCutSiteLength(), compareLength), expectedStartR2.substring(sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesBarcode(sample))){
-                            //is equivalent:(read2(0-cutsite), complement read1(0-cutsite) with allowed mismatches enzyme)
-                            //and is equivalent:(read2(cutsite-comparelength), complement read1(cutsite-comparelength) with allowed mismatches barcode)
-                            //is same => trim R2
-                            read2optimalSequence = read2optimalSequence.substring(0, read1optimalSequence.length());
-                            read2optimalQuality = read2optimalQuality.substring(0, read1optimalSequence.length());
-                            trimedR2 = true;
-                            //sequenceError = "CORRECTED R2\n";
-                            this.correctionLog.addCorrecterR2Corrected(sample);
-                        }else{
-                            if (read1optimalSequence.length() + sample.getBarcode().length() + this.parameters.getAdaptorCompareSize() >= read1.getSequence().length()){
-                                //read1 is only checked on cutsite, not on adaptor, not corrected so wrong
-                                int minus = this.longestBarcodeLength - sample.getBarcode().length();
-                                read1optimalSequence = read1.getSequence().substring(sample.getBarcode().length(), read1.getSequence().length() - minus);
-                                read1optimalQuality = read1.getQuality().substring(sample.getBarcode().length(), read1.getSequence().length() - minus);
-                                trimedR1 = false;
-                                this.correctionLog.addCorrecterR1Corrected(sample);
-                            }else{
-                                this.correctionLog.addCorrecterR2NotCorrected(sample);
-                                //sequenceError = "NOTCORRECT R2\n";
-                            }
-                        }
-                    }else{
-                        //not keep cutsites
-                        if (this.findingDistanceAlgorithm.isEquivalent(read2optimalSequence.substring(0, compareLength), expectedStartR2, this.parameters.getAllowedMismatchesBarcode(sample))){
-                            //is same => trim R2
-                            read2optimalSequence = read2optimalSequence.substring(0, read1optimalSequence.length());
-                            read2optimalQuality = read2optimalQuality.substring(0, read1optimalSequence.length());
-                            trimedR2 = true;
-                            this.correctionLog.addCorrecterR2Corrected(sample);
-                            //sequenceError = "CORRECTED R2\n";
-                        }else{
-                            if (read1optimalSequence.length() + sample.getBarcode().length() + this.parameters.getAdaptorCompareSize() + sample.getPossibleEnzymeCutSiteLength() + sample.getPossibleEnzymeCutSiteLength() >= read1.getSequence().length()){
-                                //read1 is only checked on cutsite, not on adaptor, not corrected so wrong
-                                int minus = this.longestBarcodeLength - sample.getBarcode().length();
-                                read1optimalSequence = read1.getSequence().substring(sample.getBarcode().length() + sample.getPossibleEnzymeCutSiteLength(), read1.getSequence().length() - minus);
-                                read1optimalQuality = read1.getQuality().substring(sample.getBarcode().length() + sample.getPossibleEnzymeCutSiteLength(), read1.getSequence().length() - minus);
-                                trimedR1 = false;
-                                this.correctionLog.addCorrecterR1Corrected(sample);
-                            }else{
-                                this.correctionLog.addCorrecterR2NotCorrected(sample);
-                                //sequenceError = "NOTCORRECT R2\n";
-                            }
-                        }
-                    }
-                }
-            }else if (read1optimalSequence.length() > read2optimalSequence.length()){
-                //R2 is shortest
-                if (read2optimalSequence.length() > compareLength){
-                    String read2end = read2optimalSequence.substring(read2optimalSequence.length() - compareLength, read2optimalSequence.length());
-                    String expectedStartR1 = BasePair.getComplementSequence(read2end);
-                    if (this.parameters.keepCutSites()){
-                        if (this.findingDistanceAlgorithm.isEquivalent(read1optimalSequence.substring(0, sample.getPossibleEnzymeCutSiteLength()), expectedStartR1.substring(0, sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesEnzyme())
-                                && this.findingDistanceAlgorithm.isEquivalent(read1optimalSequence.substring(sample.getPossibleEnzymeCutSiteLength(), compareLength), expectedStartR1.substring(sample.getPossibleEnzymeCutSiteLength()), this.parameters.getAllowedMismatchesBarcode(sample))){
-                            read1optimalSequence = read1optimalSequence.substring(0, read2optimalSequence.length());
-                            read1optimalQuality = read1optimalQuality.substring(0, read2optimalSequence.length());
-                            trimedR1 = true;
-                            this.correctionLog.addCorrecterR1Corrected(sample);
-                            //sequenceError = "CORRECTED R1\n";
-                        }else{
-                            this.correctionLog.addCorrecterR1NotCorrected(sample);
-                            //sequenceError = "NOTCORRECT R1\n";
-                        }
-                    }else{
-                        //not keep cutsites
-                        if (this.findingDistanceAlgorithm.isEquivalent(read1optimalSequence.substring(0, compareLength), expectedStartR1, this.parameters.getAllowedMismatchesBarcode(sample))){
-                            read1optimalSequence = read1optimalSequence.substring(0, read2optimalSequence.length());
-                            read1optimalQuality = read1optimalQuality.substring(0, read2optimalSequence.length());
-                            trimedR1 = true;
-                            this.correctionLog.addCorrecterR1Corrected(sample);
-                            //sequenceError = "CORRECTED R1\n";
-                        }else{
-                            this.correctionLog.addCorrecterR1NotCorrected(sample);
-                            //sequenceError = "NOTCORRECT R1\n";
-                        }
-                    }
-                }
-            }else{
-                //same size (may not occure here)
-                this.correctionLog.addCorrecterTrimOk(sample);
-            }
-        }
-        
-        
-        
-        
-        if (trimedR1 && ! trimedR2){
-            //R1 was trimed, but R2 not
-            int mismatch = -1;
-            if (read1optimalSequence.length() < (read1.getSequence().length() - this.longestBarcodeLength - sample.getBarcode().length() + 1)){
-                mismatch = (MismatchIndelDistance.calculateEquivalentDistance(read2optimalSequence.substring(read1optimalSequence.length() + 1, (read1optimalSequence.length() + 1 + sample.getBarcode().length())), sample.getComplementBarcode(), 1)[0]);
-            }
-            read2optimalSequence = read2optimalSequence.substring(0, read1optimalSequence.length());
-            read2optimalQuality = read2optimalQuality.substring(0, read1optimalSequence.length());
-            sequenceError = "TRIM\t" + "tR1nR2" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length() + "\t" + (lengthR1 - lengthR2) + "\t" + mismatch;
-            this.correctionLog.addTrimTrimR1NotR2Fail(sample);
-        }else if (! trimedR1 && trimedR2){
-            //R2 was trimed, not R1, so check sizes to diside to trim
-            if (read1optimalSequence.length() > read2optimalSequence.length()){
-                //read 1 is longer, so trim read 1
-                int mismatch = -1;
-                if (read2optimalSequence.length() < read1.getSequence().length() - this.parameters.getAdaptorCompareSize() - this.longestBarcodeLength){
-                    mismatch = (MismatchIndelDistance.calculateEquivalentDistance(read1optimalSequence.substring(read2optimalSequence.length(), (read2optimalSequence.length() + this.parameters.getAdaptorCompareSize())), this.parameters.getCommonAdaptor(), 1)[0]);;
-                }
-                read1optimalSequence = read1optimalSequence.substring(0, read2optimalSequence.length());
-                read1optimalQuality = read1optimalQuality.substring(0, read2optimalSequence.length());
-                sequenceError = "TRIM\t" + "nR1tR2not" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length() + "\t" + (lengthR1 - lengthR2) + "\t" + mismatch;
-                this.correctionLog.addTrimNotR1TrimR2butFail(sample);
-            }else if (read1optimalSequence.length() < read2optimalSequence.length()){
-                //read 2 is longer, so is ok
-                sequenceError = "TRIM\t" + "nR1tR2okl" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length();
-                this.correctionLog.addTrimNotR1TrimR2butOk(sample);
-            }else{
-                //same length so ok
-                sequenceError = "TRIM\t" + "nR1tR2oks" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length();
-                this.correctionLog.addTrimNotR1TrimR2butOk(sample);
-            }
-        }else if (trimedR1 && trimedR2){
-            //both are trimed so both have to be the same size
-            if (read1optimalSequence.length() > read2optimalSequence.length()){
-                //read 1 is longer, so trim read 1
-                read1optimalSequence = read1optimalSequence.substring(0, read2optimalSequence.length());
-                read1optimalQuality = read1optimalQuality.substring(0, read2optimalSequence.length());
-                sequenceError = "TRIM\t" + "tR1tR2notR1" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length() + "\t" + (lengthR1 - lengthR2);
-                this.correctionLog.addTrimTrimR1TrimR2longR1(sample);
-            }else if (read1optimalSequence.length() < read2optimalSequence.length()){
-                //read 2 is longer, so trim read 2
-                read2optimalSequence = read2optimalSequence.substring(0, read1optimalSequence.length());
-                read2optimalQuality = read2optimalQuality.substring(0, read1optimalSequence.length());
-                sequenceError = "TRIM\t" + "tR1tR2notR2" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length() + "\t" + (lengthR1 - lengthR2);
-                this.correctionLog.addTrimTrimR1TrimR2longR2(sample);
-            }else{
-                //both reads have same length so ok
-                sequenceError = "TRIM\t" + "tR1tR2ok" + "\t" + read1.getDescription() + "\t" + read2.getDescription() + "\tor1:" + lengthR1 + "\tor2:" + lengthR2 + "\tread1:" + read1optimalSequence.length() + "\tread2:" + read2optimalSequence.length();
-                this.correctionLog.addTrimTrimR1TrimR2ok(sample);
-            }
-        }else if (! trimedR1 && ! trimedR2){
-            //perfect sequence, not trimmed
-            this.correctionLog.addTrimNotR1NotR2(sample);
-        }
-        
-        
-        //save results
-        FastqRead resultRead1 = new FastqRead(read1.getDescription(), read1optimalSequence, read1optimalQuality);
-        FastqRead resultRead2 = new FastqRead(read2.getDescription(), read2optimalSequence, read2optimalQuality);
-        return new ProcessedFragment(sample, resultRead1, resultRead2, sampleBarcodeCombination.getMismatches(), sequenceError);
-    }
-    
-    /**
-     * this method gets two reads from a pair-end fastq file. 
-     * <br> Read1 is from the first read, Read2 is from the reverse read
-     * <br> The reads are made of the 4 lines for every read: the information line, the sequence line, the + line and the quality line.
-     * <br> The first read is searched for the barcode + enzyme site (looked to all known samples)
-     * <br> if no barcode + enzyme (perfect match) is found, a InvalidReadException is thrown
-     * <br> else these are trimed from the read (both from the sequence as the quality)
-     * <br> then the read is searched for a cutsite of the same enzyme, if any that piece + the rest is removed (both from the sequence as the quality)
-     * <br> The second read is searched for the enzyme site
-     * <br> if no enzyme site (perfect match) is found, a InvalidReadException is thrown
-     * <br> else these are trimed from the read (both sequence as quality)
-     * <br> then the read is searched for a secund cutsite (this will be the complement of the enzyme site + barcode)
-     * <br> if found these are removed + rest after (both from the sequence as the quality)
-     * <br> a new array of Strings is created with 0 as the modified read of read1, and 1 as the modified read of read2
-     * @param read1 Map<FastqParts, String> | the 4 lines for the first read: the information line, the sequence line, the + line and the quality line (as Fastq from BioJava)
-     * @param read2 Map<FastqParts, String> | the 4 lines for the second read: the information line, the sequence line, the + line and the quality line (as Fastq from BioJava)
-     * @return ProcessedRead | All information about the processed reads
-     * @throws InvalidReadException if the first or second read doesn't has the right index (barcode + enzyme site for read1, enzyme site for read2)
-     * @see FastqDemultiplex#findBestBarcode(java.lang.String) 
-     * @see FastqDemultiplex#findRead1EnzymeLocation(java.lang.String, be.uzleuven.gc.logistics.gbsDemultiplex.model.Sample) 
-     * @see ProcessedFragment
-     */
-    private ProcessedFragment parseFastqRead_new(FastqRead read1, FastqRead read2) throws InvalidReadException{
         //search for the optimal barcode
         SampleBarcodeCombination[] comb = this.findGBSBarcode2(read1.getSequence(), this.parameters.getStartDistance(), read2.getSequence());
         if (comb == null){
@@ -867,11 +558,8 @@ public final class FastqDemultiplex {
         //find the next enzyme site (if there is any)
         int read1EndLocation = -1;
         int[] read1EndLocationLength = {-1, 0};
-//        EnzymeComparator enzymeComparator = new EnzymeComparator();
-//        if (enzymeComparator.compare(sample.getEnzyme(), this.parameters.getNeutralEnzyme()) != 0){
-            read1EndLocationLength = this.findRead1EnzymeLocation(read1modifiedSequence, sample);
-            read1EndLocation = read1EndLocationLength[0];
-//        }
+        read1EndLocationLength = this.findRead1EnzymeLocation(read1modifiedSequence, sample);
+        read1EndLocation = read1EndLocationLength[0];
         String read1optimalSequence = read1modifiedSequence;
         String read1optimalQuality = read1modifiedQuality;
         if (read1EndLocation != -1){
@@ -897,22 +585,6 @@ public final class FastqDemultiplex {
         String read2modifiedQuality = read2.getQuality().substring(read2firstEnzymeLocation);
         if (this.parameters.isRadData()){
             //RAD data
-//            if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, sample.getBarcode().length()), sample.getBarcode(), this.parameters.getAllowedMismatchesBarcode(sample))){
-//                //possible barcode found
-//                read2modifiedSequence = read2modifiedSequence.substring(sample.getBarcode().length());
-//                read2modifiedQuality = read2modifiedQuality.substring(sample.getBarcode().length());
-//                if (! this.parameters.keepCutSites()){
-//                    //remove the enzyme site
-//                    String foundEnzyme = "";
-//                    for (String enzymeSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-//                        if (this.findingDistanceAlgorithm.isEquivalent(read2modifiedSequence.substring(0, enzymeSite.length()), enzymeSite, this.parameters.getAllowedMismatchesEnzyme())){
-//                            foundEnzyme = enzymeSite;
-//                        }
-//                    }
-//                    read2modifiedSequence = read2modifiedSequence.substring(foundEnzyme.length());
-//                    read2modifiedQuality = read2modifiedQuality.substring(foundEnzyme.length());
-//                }
-//            }
         }else{
             //GBS data
             if (! this.parameters.keepCutSites()){
@@ -1198,34 +870,7 @@ public final class FastqDemultiplex {
         return new ProcessedFragment(sample, fastqRead, sampleBarcodeCombination.getMismatches());
     }
     
-    
-    
-    /**
-     * search for a enzyme cutsite or complement in the given sequence (cutsite found in given sample)
-     * <br> returns -1 if no cutsite is found
-     * <br> returns a location (int) if a cutsite is found
-     * @param sequence String | the sequence where is searched in
-     * @param sample Sample | the sample from which compliment cutsites is used
-     * @return int | -1 if no cutsite is found, else the location of the cutsite
-     */
-    private int findFirstEnzymeLocation(String sequence, Sample sample){
-        //init location
-        int bestLocation = -1;
-        //try every cutsite of the known enzyme
-        for (String enzymeCutSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-            //try to find the location of the enzyme (-1 is returned if the barcode isn't found)
-            int location = sequence.indexOf(enzymeCutSite);
-            if (location != -1){
-                //location found
-                if (bestLocation == -1 || location < bestLocation){
-                    //location is better then previous one
-                    bestLocation = location;
-                }
-            }
-        }
-        return bestLocation;
-    }
-    
+  
     /**
      * Goes over the sequence and search the if the piece of the sequence is equivalent to a possible enzyme cutsite (possible enzyme mismatches)
      * <br> if the found piece is equivalent and the complete check option is false, the location is returned
@@ -1475,8 +1120,10 @@ public final class FastqDemultiplex {
                             //check on adaptor ligase
                             if (this.parameters.getAdaptorLigaseMismatches() != -1){
                                 String adaptor = this.parameters.getCommonAdaptor();
-                                if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + cutsiteLocationLength[1]), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
-                                    return null;
+                                for (int l = cutsiteLocationLength[1]/2; l <= cutsiteLocationLength[1]; l++){
+                                    if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + l), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
+                                        return null;
+                                    }
                                 }
                             }
                             foundSampleSet.add(new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]));
@@ -1540,9 +1187,11 @@ public final class FastqDemultiplex {
                             //check on adaptor ligase
                             if (this.parameters.getAdaptorLigaseMismatches() != -1){
                                 String adaptor = this.parameters.getCommonAdaptor();
-                                if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + cutsiteLocationLength[1]), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
-                                    return null;
-                                    //adaptor ligase
+                                for (int l = cutsiteLocationLength[1]/2; l <= cutsiteLocationLength[1]; l++){
+                                    if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + cutsiteLocationLength[1]), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
+                                        return null;
+                                        //adaptor ligase
+                                    }
                                 }
                             }
                             exactEnzymeCutSite = enzymeCutSite;
@@ -1600,8 +1249,10 @@ public final class FastqDemultiplex {
                                 //check on adaptor ligase
                                 if (this.parameters.getAdaptorLigaseMismatches() != -1){
                                     String adaptor = this.parameters.getCommonAdaptor();
-                                    if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence2.substring(distance + barcodeLocationLength[1] + cutsiteLocationLength[1]), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
-                                        return null;
+                                    for (int l = cutsiteLocationLength[1]/2; l <= cutsiteLocationLength[1]; l++){
+                                        if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence2.substring(distance + barcodeLocationLength[1] + l), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
+                                            return null;
+                                        }
                                     }
                                 }
                                 exactEnzymeCutSite = enzymeCutSite;
@@ -1631,183 +1282,6 @@ public final class FastqDemultiplex {
         return null;
     }
     
-    /**
-     * a combination of a sample, a barcode and enzyme, the mismatches (between sequence and barcode/enzyme) and the start location of the barcode in the sequence
-     */
-    private class SampleBarcodeCombination{
-        
-        private Sample sample;
-        private String enzymeCutSite;
-        private int location;
-        private int mismatches;
-        private int lengthFoundBarcode;
-        private int lengthFoundEnzyme;
-        /**
-         * 
-         * @param sample Sample | the sample of this combination
-         * @param enzymeCutSite String | the used enzyme cutsite
-         * @param location int | the start location of the barcodeEnzyme
-         * @param mismatches int | the amount of mismatches
-         * @param length int | the length of the combination of the sample and barcode
-         */
-        public SampleBarcodeCombination(Sample sample, String enzymeCutSite, int location, int mismatches, int lengthFoundBarcode, int lengthFoundEnzyme){
-            this.sample = sample;
-            this.enzymeCutSite = enzymeCutSite;
-            this.location = location;
-            this.mismatches = mismatches;
-            this.lengthFoundBarcode = lengthFoundBarcode;
-            this.lengthFoundEnzyme = lengthFoundEnzyme;
-        }
-        
-        /**
-         * 
-         * @return Sample | the sample of this combination
-         */
-        public Sample getSample(){
-            return this.sample;
-        }
-        
-        /**
-         * 
-         * @return String | the enzymeCutsite
-         */
-        public String getEnzymeCutsite(){
-            return this.enzymeCutSite;
-        }
-        
-        /**
-         * 
-         * @return int | the location of the barcode + enzyme in a sequence
-         */
-        public int getLocation(){
-            return this.location;
-        }
-        
-        /**
-         * 
-         * @return int | the amount of mismatches between the barcode + enzyme and the sequence
-         */
-        public int getMismatches(){
-            return this.mismatches;
-        }
-        
-        /**
-         * 
-         * @return int | the length of the found enzyme
-         */
-        public int getLengthFoundEnzyme(){
-            return this.lengthFoundEnzyme;
-        }
-        
-        /**
-         * 
-         * @return int | the lenght of the found barcode
-         */
-        public int getLengthFoundBarcode(){
-            return this.lengthFoundBarcode;
-        }
-        
-    }
-    
-    /**
-     * all information of the processed fragment:
-     * <br> the sample of the read, 
-     * <br> read1 (as HashMap of FastqParts and String)
-     * <br> read2 (only pair-end) (as HashMap of FastqParts and String)
-     * <br> mismatch occured in finding the barcode/enzyme
-     */
-    private class ProcessedFragment{
-        
-        private Sample sample;
-        private FastqRead read1;
-        private FastqRead read2;
-        private int mismatch;
-        private String sequenceComment = "";
-        
-        /**
-         * create a new ProcessedFragment (pair-end)
-         * @param sample Sample | the sample of the fragment
-         * @param read1 FastqRead | the first read of the fragment
-         * @param read2 FastqRead | the second read of the fragment (only pair-end)
-         * @param mismatch int | number of mismatches in the barcode/enzyme
-         * @param sequenceComment String | the comment on the cut of the sequence
-         */
-        public ProcessedFragment(Sample sample, FastqRead read1, FastqRead read2, int mismatch, String sequenceComment){
-            this.sample = sample;
-            this.read1 = read1;
-            this.read2 = read2;
-            this.mismatch = mismatch;
-            this.sequenceComment = sequenceComment;
-        }
-        
-        /**
-         * create a new ProcessedFragment (pair-end)
-         * @param sample Sample | the sample of the fragment
-         * @param read1 FastqRead | the first read of the fragment
-         * @param read2 FastqRead | the second read of the fragment (only pair-end)
-         * @param mismatch int | number of mismatches in the barcode/enzyme
-         */
-        public ProcessedFragment(Sample sample, FastqRead read1, FastqRead read2, int mismatch){
-            this.sample = sample;
-            this.read1 = read1;
-            this.read2 = read2;
-            this.mismatch = mismatch;
-        }
-        
-        /**
-         * create a new ProcessedFragment (single read)
-         * @param sample Sample | the sample of the fragment
-         * @param read1 FastqRead | the only read of the fragment
-         * @param mismatch int | number of mismatches in the barcode/enzyme
-         */
-        public ProcessedFragment(Sample sample, FastqRead read1, int mismatch){
-            this.sample = sample;
-            this.read1 = read1;
-            this.read2 = null;
-            this.mismatch = mismatch;
-        }
-        
-        /**
-         * 
-         * @return Sample | the sample of this fragment
-         */
-        public Sample getSample(){
-            return this.sample;
-        }
-        
-        /**
-         * 
-         * @return HashMap of FastqParts and String | the first read
-         */
-        public FastqRead getRead1(){
-            return this.read1;
-        }
-        
-        /**
-         * 
-         * @return HashMap of FastqParts and String | the second read (only by pair-end)
-         */
-        public FastqRead getRead2(){
-            return this.read2;
-        }
-        
-        /**
-         * 
-         * @return int | number of mismatches in barcode/enzyme
-         */
-        public int getMismatch(){
-            return this.mismatch;
-        }
-        
-        /**
-         * 
-         * @return String | the comment on the cut of the reads
-         */
-        public String getComment(){
-            return this.sequenceComment;
-        }
-        
-    }
     
     
 }

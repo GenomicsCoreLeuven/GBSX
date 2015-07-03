@@ -138,11 +138,6 @@ piece) AGATCGGAAGAGCG) currently only used for adaptor ligase see -al and when
 *    `-s`    the posible distance of the start. This is the distance count from 
 the start of the read to the first basepair of the barcode or enzyme 
 (standard 0, maximum 20)  
-*    `-cc`    Checks the complete read for the enzyme (if false, stops at the 
-first possible enzyme cutsite) (use values true or false, standard is true). If 
-used, the sequence after the enzyme site is compared to the adaptors, if the 
-first basepairs of the sequence are compaired to the first basepairs of the 
-adaptor  
 *    `-kc`    Keep the enzyme cut-site remains (standard true) (example: enzyme 
 ApeKI and restriction site G^CWGC: "ApeKI \tab CAGC,CTGC")  
 *    `-ea`    Add enzymes from the given file (keeps the standard enzymes, and 
@@ -151,10 +146,7 @@ cutsites are comma separeted)) (only use once, not use -er) (example: enzyme
 ApeKI and restriction site G^CWGC: "ApeKI \tab CAGC,CTGC")  
 *    `-er`    Replace enzymes from the given file (do not keep the standard 
 enzymes) (enzyme file: no header, enzyme name tab cutsites (multiple cutsites 
-are comma separeted)) (only use once, not use -ea)  
-*    `-al`    check for adaptor ligase: no (for no check) or a positive integer 
-(starts at 0), for the number of mismatches (only checks 10 basepairs of 
-the adaptor), standard 1  
+are comma separeted)) (only use once, not use -ea) 
 *    `-scb`    Use self correcting barcodes (barcodes created by the 
 barcodeGenerator) (standard false)  
 *    `-malg`    the used algorithm to find mismatches and indels, possible 
@@ -260,3 +252,8 @@ the read is considered as unvalid (previous was first sample)
 
 v1.1.3
 * On request added the enzyme AvaII
+
+v1.1.4
+* Update adaptor ligase finding algorithm
+* Removed unneeded, confusing parameters -cc and -al
+* Removed unused code
