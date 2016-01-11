@@ -88,4 +88,41 @@ public class SampleBarcodeCombination {
         return this.lengthFoundBarcode;
     }
 
+    /**
+     * 
+     * @param s SampleBarcodeCombination
+     * @return true if the same sample is used
+     */
+   public boolean isSameSample(SampleBarcodeCombination s){
+       if (s.getSample().equals(this.getSample())){
+           return true;
+       }else{
+           return false;
+       }
+   }
+   
+   /**
+    * 
+    * @param s SampleBarcodeCombination
+    * @return true is this sampleBarcodeCombination is better then s:
+    *   the location of this must be lower
+    *   when equal location this mismatches must be lower or equal
+    */
+   public boolean isThisBetter(SampleBarcodeCombination s){
+       if(isSameSample(s)){
+           if(s.getLocation() < this.getLocation()){
+               return false;
+           }else if(s.getLocation() > this.getLocation()){
+               return true;
+           }else{
+               if(s.getMismatches() >= this.getMismatches()){
+                   return true;
+               }else{
+                   return false;
+               }
+           }
+       }else{
+           return false;
+       }
+   }
 }

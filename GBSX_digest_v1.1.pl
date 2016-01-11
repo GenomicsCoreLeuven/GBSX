@@ -124,7 +124,9 @@ if ($digest2_seq ne "not_defined"){
 my @ref_chr;
 open (ref_files,$fasta_file_locations)||die "could not open file $fasta_file_locations\n";
 while(<ref_files>){
-	chop;
+    #update 1.1: change chop to chomp
+	#chop;
+    chomp;
        	$_=~s/\n//;$_=~s/\r//;
 	if ($_ ne ""){ 
 		push(@ref_chr,$_); 

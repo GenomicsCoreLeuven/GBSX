@@ -376,6 +376,7 @@ public final class FastqDemultiplex {
                     mostMismatches = sample.getBarcodeMismatches();
                 }
             }
+            //mostMismatches += this.parameters.getAllowedMismatchesEnzyme();
             statsFile.saveStats(mostMismatches, this.parameters.getOutputDirectory());
             this.correctionLog.writeToFile(this.parameters.getOutputDirectory());
         } catch (IOException ex) {
@@ -478,9 +479,10 @@ public final class FastqDemultiplex {
             int mostMismatches = this.parameters.getAllowedMismatchesBarcode();
             for (Sample sample : this.sampleList){
                 if (sample.getBarcodeMismatches() > mostMismatches){
-                    mostMismatches = sample.getBarcodeMismatches();
+                    mostMismatches = sample.getBarcodeMismatches();                            
                 }
             }
+            //mostMismatches += this.parameters.getAllowedMismatchesEnzyme();
             statsFile.saveStats(mostMismatches, this.parameters.getOutputDirectory());
         } catch (IOException ex) {
             this.writeToLog("ERROR in reading the fastq files: " + ex.getMessage());
@@ -1114,21 +1116,29 @@ public final class FastqDemultiplex {
                 }
                 if (barcodeLocationLength[0] != -1){
                     //try every enzyme site
+                    boolean cutsiteFound = false;
+                    String exactEnzymeCutSite = "";
+                    int[] cutsiteLocationLength = new int[1];
+                    cutsiteLocationLength[0] = 0;
                     for (String enzymeCutSite : sample.getEnzyme().getInitialCutSiteRemnant()){
-                        int[] cutsiteLocationLength;
                         if ((cutsiteLocationLength = this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1]), enzymeCutSite, this.parameters.getAllowedMismatchesEnzyme()))[0] != -1){
                             //check on adaptor ligase
                             if (this.parameters.getAdaptorLigaseMismatches() != -1){
                                 String adaptor = this.parameters.getCommonAdaptor();
                                 for (int l = cutsiteLocationLength[1]/2; l <= cutsiteLocationLength[1]; l++){
-                                    if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + l), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
+                                    if (this.findingDistanceAlgorithm.calculateEquivalentDistance(sequence.substring(distance + barcodeLocationLength[1] + cutsiteLocationLength[1]), adaptor, this.parameters.getAdaptorLigaseMismatches())[0] != -1){
                                         return null;
+                                        //adaptor ligase
                                     }
                                 }
                             }
-                            foundSampleSet.add(new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]));
-//                            return new SampleBarcodeCombination(sample, enzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]);
+                            exactEnzymeCutSite = enzymeCutSite;
+                            cutsiteFound = true;
                         }
+                    }
+                    if (cutsiteFound){
+                        foundSampleSet.add(new SampleBarcodeCombination(sample, exactEnzymeCutSite, distance, barcodeLocationLength[0], barcodeLocationLength[1], cutsiteLocationLength[1]));
+                        
                     }
                 }
             }
