@@ -50,19 +50,6 @@ public class FastaPairBufferedWriter {
     }
     
     /**
-     * creates 2 new FastaBufferedReader of the given files.
-     * @param fileRead1 | the URL for read 1
-     * @param fileRead2 | the URL for read 2
-     * @param ziped | boolean if the fasta file is ziped (gz)
-     * @throws FileNotFoundException | if the given file isn't found
-     * @throws IOException | if an error occures while opening the file
-     */
-//    public FastaPairBufferedReader(URL fileRead1, URL fileRead2, boolean ziped) throws FileNotFoundException, IOException{
-//        this.fastaBufferedReader1 = new FastaBufferedReader(fileRead1, ziped);
-//        this.fastaBufferedReader2 = new FastaBufferedReader(fileRead2, ziped);
-//    }
-    
-    /**
      * reads the next lines in the fasta file. and returns it as an fastaread
      * @return null if there are no fasta files anymore, else a FastqRead
      * @throws IOException | if any error occures while reading the file

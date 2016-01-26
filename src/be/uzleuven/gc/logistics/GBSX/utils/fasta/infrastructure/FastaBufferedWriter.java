@@ -31,7 +31,7 @@ public class FastaBufferedWriter {
     /**
      * creates a new FastaBufferedWriter of the given file.
      * @param file | the file that must be writen
-     * @param  zipped | true if the file must be zipped
+     * @param  ziped | true if the file must be zipped
      * @throws FileNotFoundException | if the given file isn't found
      * @throws IOException | if an error occures while opening the file
      */
@@ -46,7 +46,7 @@ public class FastaBufferedWriter {
     /**
      * creates a new FastaBufferedWriter of the given file.
      * @param file | the file that must be writen
-     * @param  zipped | true if the file must be zipped
+     * @param  ziped | true if the file must be zipped
      * @param append | true if append to existing file
      * @throws FileNotFoundException | if the given file isn't found
      * @throws IOException | if an error occures while opening the file
@@ -62,7 +62,7 @@ public class FastaBufferedWriter {
     /**
      * creates a new FastaBufferedReader of the given URL.
      * @param url | the URL of the file that must be writen
-     * @param  zipped | true if the file must be zipped
+     * @param  ziped | true if the file must be zipped
      * @throws FileNotFoundException | if the given file isn't found
      * @throws IOException | if an error occures while opening the file
      */
@@ -76,7 +76,7 @@ public class FastaBufferedWriter {
     /**
      * creates a new FastaBufferedReader of the given URL.
      * @param url | the URL of the file that must be writen
-     * @param  zipped | true if the file must be zipped
+     * @param  ziped | true if the file must be zipped
      * @param append | true if append to existing file
      * @throws FileNotFoundException | if the given file isn't found
      * @throws IOException | if an error occures while opening the file

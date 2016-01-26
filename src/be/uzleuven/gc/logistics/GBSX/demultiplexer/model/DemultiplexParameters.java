@@ -44,7 +44,8 @@ public class DemultiplexParameters implements Parameters{
         this.arguments = new HashMap();
         //standard parameters
         this.arguments.put(DemultiplexArguments.OUTPUT_DIRECTORY, System.getProperty("user.dir"));
-        this.arguments.put(DemultiplexArguments.ALLOWED_MISMATCHES, "1");
+        this.arguments.put(DemultiplexArguments.ALLOWED_MISMATCHES_BARCODE, "1");
+        this.arguments.put(DemultiplexArguments.ALLOWED_MISMATCHES_ENZYME, "1");
         this.arguments.put(DemultiplexArguments.START_BARCODE_DISTANCE, "0");
         this.arguments.put(DemultiplexArguments.COMPLETE_CHECK, "true");
         this.arguments.put(DemultiplexArguments.QUALITY_SCORE, FastqScores.ILLUMINA_1_8.getType());
@@ -163,10 +164,7 @@ public class DemultiplexParameters implements Parameters{
      * @return int | the allowed mismatches for the barcode
      */
     public int getAllowedMismatchesBarcode(){
-        if (this.arguments.containsKey(DemultiplexArguments.ALLOWED_MISMATCHES_BARCODE)){
-            return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES_BARCODE));
-        }
-        return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES));
+        return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES_BARCODE));
     }
     
     /**
@@ -240,10 +238,7 @@ public class DemultiplexParameters implements Parameters{
      * @return int | the allowed mismatches for the enzyme
      */
     public int getAllowedMismatchesEnzyme(){
-        if (this.arguments.containsKey(DemultiplexArguments.ALLOWED_MISMATCHES_ENZYME)){
-            return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES_ENZYME));
-        }
-        return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES));
+        return Integer.parseInt(this.arguments.get(DemultiplexArguments.ALLOWED_MISMATCHES_ENZYME));
     }
     
     /**
@@ -556,7 +551,6 @@ public class DemultiplexParameters implements Parameters{
         toHelp += "\t -lf \t use long file names (standard false) filename is standard the sample name, long file names is sample name _ barcode _ enzyme" + "\n";
         toHelp += "\t -rad \t if the data is rad data or not (-rad true for RAD data, -rad false for GBS data) standard false (GBS)" + "\n";
         toHelp += "\t -gzip \t the input and output are/must be gziped (.gz) (standard false: input and output are .fastq, if true this is .fastq.gz)" + "\n";
-        toHelp += "\t -m \t the allowed mismatches in the barcodes + enzymes (standard this value is 1)" + "\n";
         toHelp += "\t -mb \t the allowed mismatches in the barcodes (overrides the option -m)" + "\n";
         toHelp += "\t -me \t the allowed mismatches in the enzymes (overrides the option -m)" + "\n";
         toHelp += "\t -minsl \t the minimum allowed length for the sequences (standard 0, rejected sequences are found in the stats for each sample in the rejected.count column. The sequences self are found untrimmed in the undetermined file.)" + "\n";

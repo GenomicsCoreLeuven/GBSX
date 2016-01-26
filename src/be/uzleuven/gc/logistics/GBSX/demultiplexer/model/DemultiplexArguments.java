@@ -75,11 +75,6 @@ public enum DemultiplexArguments implements Arguments{
      */
     KEEP_ENZYME_CUTSITES ("-kc"),
     /**
-     * The allowed mismatches in a barcode, enzyme or combination
-     * Optional
-     */
-    ALLOWED_MISMATCHES ("-m"),
-    /**
      * The used algorithm to search for mismatches
      */
     MISMATCH_ALGORITHM ("-malg"),

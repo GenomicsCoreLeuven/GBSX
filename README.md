@@ -190,6 +190,7 @@ Possible Standard Enzymes for the info file: (NA is no enzyme)
 * `RBSTA`  
 * `RBSCG`  
 * `NspI`  
+* `AvaII`  
 * `NAN`  
   
   
@@ -257,3 +258,11 @@ v1.1.4
 * Update adaptor ligase finding algorithm
 * Removed unneeded, confusing parameters -cc and -al
 * Removed unused code
+
+v1.1.5
+ * Update digest (removed possible input file parsing error)
+ * Updated Single Read Demultiplexing
+
+v1.2
+ * Deleted Demultiplexer option -m
+ * Code Clean-up

@@ -57,7 +57,6 @@ public class BarcodeDiscovery {
     public static void main (String[] args){
         try{
             if (BarcodeDiscovery.DEBUG){
-//                String input = "-help";
                 String input ="-f1 /home/koen/Downloads/GBS_Example/dem/dem2/output.fastq";
                 args = input.split(" ");
             }
