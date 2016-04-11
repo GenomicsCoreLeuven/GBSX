@@ -9,9 +9,15 @@
 title: GBSX
 email: your-email@domain.com
 description: > # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
+  GBSX or Genotype-by-sequencing demultiplexer is a toolkit that includes
+    a demultiplexer for GBS, RAD or restriction site associated dna and for inline barcodes,
+    a restriction digest emulation tool, barcode discovery and barcode generator.
+    GBSX is an ideal tool to use for GBS and RAD experimental design, preciding various pipelines
+    including stacks and ddocent. The combination of GBSX and ddocent outpreforms the standard stacks, ddocent and tassel.
+    
+    GBSX GBS RAD inline barcodes ddRAD tassel stacks ddocent genotyping-by-sequencing genotype-by-sequencing dart dartseq DART DARTseq
+    population genomics genome scan SNP SNPs genetic differentiation fst demultiplexer barcode splitter reduced representation 
+    restriction enzyme associated dna
 baseurl: "http://genomicscoreleuven.github.io/GBSX/" # the subpath of your site, e.g. /blog
 url: "http://genomicscoreleuven.github.io/GBSX/" # the base hostname & protocol for your site
 twitter_username: 
