@@ -1,0 +1,32 @@
+<header class="site-header">
+
+  <div class="wrapper">
+
+<div class="container">
+        <h1>{{ site.title }}</h1>
+        <h2></h2>
+</div>
+
+<div class="container">
+         <a class="btn" href="/">Home</a>
+         <a class="btn" href="/documentation/">Documentation</a>
+         <a class="btn" href="/tutorial/">Tutorial</a>
+         <a class="btn" href="/galaxy/">Galaxy</a>
+         <a class="btn" href="/change_logs/">Change Logs</a>
+      </div>
+
+<div class="container">
+            {% if page.url contains '/documentation/' %}
+            <table>
+            <tr>
+         <td><a class="btn" href="/documentation/restriction_enzyme_predictor">Restriction Enzyme Predictor</a></td>
+         <td><a class="btn" href="/documentation/barcode_generator">Barcode Generator</a></td>
+            </tr><tr>
+         <td><a class="btn" href="/documentation/demultiplexer">Demultiplexer</a></td>
+         <td><a class="btn" href="/documentation/barcode_discovery">Barcode Discovery</a></td>
+            </tr>
+            </table>
+            {% endif %}
+      </div>
+
+</header>
