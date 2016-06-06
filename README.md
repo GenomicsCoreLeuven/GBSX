@@ -124,8 +124,6 @@ sample name, long file names is sample name _ barcode _ enzyme
 false for GBS data) standard false (GBS)  
 *    `-gzip`    the input and output are/must be gziped (.gz) (standard false: 
 input and output are .fastq, if true this is .fastq.gz)  
-*    `-m`    the allowed mismatches in the barcodes + enzymes (standard this 
-value is 1)  
 *    `-mb`    the allowed mismatches in the barcodes (overrides the option -m)  
 *    `-me`    the allowed mismatches in the enzymes (overrides the option -m)  
 *    `-minsl`    the minimum allowed length for the sequences (standard 0, 
