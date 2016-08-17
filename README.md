@@ -33,7 +33,7 @@ UZ – KU Leuven
 Herestraat 49 PO box 602  
 B-3000 Leuven, Belgium  
 
-Mail: [genomicscore@uzleuven.be](mailto:genomicscore@uzleuven.be "")
+Mail: [koen.herten@kuleuven.be](mailto:koen.herten@kuleuven.be "")
 
 
 ## Citing GBSX
