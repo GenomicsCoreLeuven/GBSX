@@ -40,3 +40,7 @@ v1.1.5
 v1.2
  * Deleted Demultiplexer option -m
  * Code Clean-up
+
+v1.3
+ * Removal of the filelock class, ReentrantLock is now used
+ * The demultiplexing is now multithreaded: use -t NumberOfThreads

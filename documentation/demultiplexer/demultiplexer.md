@@ -24,6 +24,7 @@ These parameters are optional:
 paired-end sequencing)  
 *    `-o`    the name of the output directory (standard the directory of the 
 call)  
+*    `-t`    the number of threads (standard 1)
 *    `-lf`    use long file names (standard false) filename is standard the 
 sample name, long file names is sample name _ barcode _ enzyme	   
 *    `-rad`    if the data is rad data or not (-rad true for RAD data, -rad 
