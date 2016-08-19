@@ -19,7 +19,6 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fasta.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fasta.model.FastaRead;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -28,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -40,7 +40,7 @@ public class FastaBufferedReader {
     
     
     private final BufferedReader fastaBufferedReader;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates a new FastaBufferedReader of the given file.
@@ -64,23 +64,22 @@ public class FastaBufferedReader {
      * @throws IOException | if any error occures while reading the file
      */
     public FastaRead next() throws IOException{
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             String descriptionLine = this.fastaBufferedReader.readLine();
             if (descriptionLine == null){
-                this.fileLocker.unlock();
                 return null;
             }
 
             String sequenceLine = this.fastaBufferedReader.readLine();
             if (sequenceLine == null){
-                this.fileLocker.unlock();
                 return null;
             }
             FastaRead fastaRead = new FastaRead(descriptionLine, sequenceLine);
-            this.fileLocker.unlock();
             return fastaRead;
+        }finally{
+            lock.unlock();
         }
-        return null;
     }  
     
     
@@ -89,8 +88,9 @@ public class FastaBufferedReader {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
+        lock.lock();
         this.fastaBufferedReader.close();
+        lock.unlock();
     }
     
     

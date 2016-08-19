@@ -127,6 +127,10 @@ public enum DemultiplexArguments implements Arguments{
      */
     USE_SELF_CORRECTING_BARCODES ("-scb"),
     /**
+     * number of threads
+     */
+    THREADS ("-t"),
+    /**
      * If the given argument was invalid
      */
     INVALID_ARGUMENT ("ERROR");

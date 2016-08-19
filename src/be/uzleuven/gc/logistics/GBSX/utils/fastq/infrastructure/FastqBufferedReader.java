@@ -19,7 +19,6 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fastq.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fastq.model.FastqRead;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -28,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -39,7 +39,7 @@ import java.util.zip.GZIPInputStream;
 public class FastqBufferedReader {
     
     private final BufferedReader fastqBufferedReader;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates a new FastqBufferedReader of the given file.
@@ -63,30 +63,28 @@ public class FastqBufferedReader {
      * @throws IOException | if any error occures while reading the file
      */
     public FastqRead next() throws IOException{
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             String descriptionLine = this.fastqBufferedReader.readLine();
             if (descriptionLine == null){
-                this.fileLocker.unlock();
                 return null;
             }
 
             String sequenceLine = this.fastqBufferedReader.readLine();
             if (sequenceLine == null){
-                this.fileLocker.unlock();
                 return null;
             }
             //the + line
             this.fastqBufferedReader.readLine();
             String qualityLine = this.fastqBufferedReader.readLine();
             if (qualityLine == null){
-                this.fileLocker.unlock();
                 return null;
             }
             FastqRead fastqRead = new FastqRead(descriptionLine, sequenceLine, qualityLine);
-            this.fileLocker.unlock();
             return fastqRead;
+        }finally{
+            lock.unlock();
         }
-        return null;
     }  
     
     /**
@@ -94,8 +92,12 @@ public class FastqBufferedReader {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastqBufferedReader.close();
+        try{
+            lock.lock();
+            this.fastqBufferedReader.close();
+        }finally{
+            lock.unlock();
+        }
     }
     
     

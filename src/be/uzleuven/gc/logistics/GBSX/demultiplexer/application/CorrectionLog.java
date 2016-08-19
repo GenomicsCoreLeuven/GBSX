@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -59,6 +60,8 @@ public class CorrectionLog {
     private HashMap<Sample, Integer> trimMapTrimR1trimR2longR1;
     private HashMap<Sample, Integer> trimMapTrimR1trimR2longR2;
     private HashMap<Sample, Integer> trimMapTrimR1trimR2ok;
+    
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates a new correction log
@@ -116,13 +119,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addCorrecterTrimOk(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.correctMapTrimOk.containsKey(sample)){
-            this.correctMapTrimOk.put(sample, this.correctMapTrimOk.get(sample) + 1);
-        }else{
-            this.correctMapTrimOk.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.correctMapTrimOk.containsKey(sample)){
+                this.correctMapTrimOk.put(sample, this.correctMapTrimOk.get(sample) + 1);
+            }else{
+                this.correctMapTrimOk.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -131,13 +139,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addCorrecterR1Corrected(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.correctMapR1Corrected.containsKey(sample)){
-            this.correctMapR1Corrected.put(sample, this.correctMapR1Corrected.get(sample) + 1);
-        }else{
-            this.correctMapR1Corrected.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.correctMapR1Corrected.containsKey(sample)){
+                this.correctMapR1Corrected.put(sample, this.correctMapR1Corrected.get(sample) + 1);
+            }else{
+                this.correctMapR1Corrected.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -146,13 +159,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addCorrecterR2Corrected(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.correctMapR2Corrected.containsKey(sample)){
-            this.correctMapR2Corrected.put(sample, this.correctMapR2Corrected.get(sample) + 1);
-        }else{
-            this.correctMapR2Corrected.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.correctMapR2Corrected.containsKey(sample)){
+                this.correctMapR2Corrected.put(sample, this.correctMapR2Corrected.get(sample) + 1);
+            }else{
+                this.correctMapR2Corrected.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -161,13 +179,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addCorrecterR1NotCorrected(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.correctMapR1Not.containsKey(sample)){
-            this.correctMapR1Not.put(sample, this.correctMapR1Not.get(sample) + 1);
-        }else{
-            this.correctMapR1Not.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.correctMapR1Not.containsKey(sample)){
+                this.correctMapR1Not.put(sample, this.correctMapR1Not.get(sample) + 1);
+            }else{
+                this.correctMapR1Not.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -176,13 +199,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addCorrecterR2NotCorrected(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.correctMapR2Not.containsKey(sample)){
-            this.correctMapR2Not.put(sample, this.correctMapR2Not.get(sample) + 1);
-        }else{
-            this.correctMapR2Not.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.correctMapR2Not.containsKey(sample)){
+                this.correctMapR2Not.put(sample, this.correctMapR2Not.get(sample) + 1);
+            }else{
+                this.correctMapR2Not.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -191,13 +219,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimNotR1NotR2(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapNotR1NotR2.containsKey(sample)){
-            this.trimMapNotR1NotR2.put(sample, this.trimMapNotR1NotR2.get(sample) + 1);
-        }else{
-            this.trimMapNotR1NotR2.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapNotR1NotR2.containsKey(sample)){
+                this.trimMapNotR1NotR2.put(sample, this.trimMapNotR1NotR2.get(sample) + 1);
+            }else{
+                this.trimMapNotR1NotR2.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -206,13 +239,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimNotR1TrimR2butFail(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapNotR1TrimR2butFail.containsKey(sample)){
-            this.trimMapNotR1TrimR2butFail.put(sample, this.trimMapNotR1TrimR2butFail.get(sample) + 1);
-        }else{
-            this.trimMapNotR1TrimR2butFail.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapNotR1TrimR2butFail.containsKey(sample)){
+                this.trimMapNotR1TrimR2butFail.put(sample, this.trimMapNotR1TrimR2butFail.get(sample) + 1);
+            }else{
+                this.trimMapNotR1TrimR2butFail.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -221,13 +259,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimNotR1TrimR2butOk(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapNotR1TrimR2butOK.containsKey(sample)){
-            this.trimMapNotR1TrimR2butOK.put(sample, this.trimMapNotR1TrimR2butOK.get(sample) + 1);
-        }else{
-            this.trimMapNotR1TrimR2butOK.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapNotR1TrimR2butOK.containsKey(sample)){
+                this.trimMapNotR1TrimR2butOK.put(sample, this.trimMapNotR1TrimR2butOK.get(sample) + 1);
+            }else{
+                this.trimMapNotR1TrimR2butOK.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -236,13 +279,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimTrimR1NotR2Fail(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapTrimR1NotR2Fail.containsKey(sample)){
-            this.trimMapTrimR1NotR2Fail.put(sample, this.trimMapTrimR1NotR2Fail.get(sample) + 1);
-        }else{
-            this.trimMapTrimR1NotR2Fail.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapTrimR1NotR2Fail.containsKey(sample)){
+                this.trimMapTrimR1NotR2Fail.put(sample, this.trimMapTrimR1NotR2Fail.get(sample) + 1);
+            }else{
+                this.trimMapTrimR1NotR2Fail.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -251,13 +299,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimTrimR1TrimR2longR1(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapTrimR1trimR2longR1.containsKey(sample)){
-            this.trimMapTrimR1trimR2longR1.put(sample, this.trimMapTrimR1trimR2longR1.get(sample) + 1);
-        }else{
-            this.trimMapTrimR1trimR2longR1.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapTrimR1trimR2longR1.containsKey(sample)){
+                this.trimMapTrimR1trimR2longR1.put(sample, this.trimMapTrimR1trimR2longR1.get(sample) + 1);
+            }else{
+                this.trimMapTrimR1trimR2longR1.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -266,13 +319,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimTrimR1TrimR2longR2(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapTrimR1trimR2longR2.containsKey(sample)){
-            this.trimMapTrimR1trimR2longR2.put(sample, this.trimMapTrimR1trimR2longR2.get(sample) + 1);
-        }else{
-            this.trimMapTrimR1trimR2longR2.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapTrimR1trimR2longR2.containsKey(sample)){
+                this.trimMapTrimR1trimR2longR2.put(sample, this.trimMapTrimR1trimR2longR2.get(sample) + 1);
+            }else{
+                this.trimMapTrimR1trimR2longR2.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -281,13 +339,18 @@ public class CorrectionLog {
      * @param sample 
      */
     public void addTrimTrimR1TrimR2ok(Sample sample){
-        if (! this.sampleSet.contains(sample)){
-            this.sampleSet.add(sample);
-        }
-        if (this.trimMapTrimR1trimR2ok.containsKey(sample)){
-            this.trimMapTrimR1trimR2ok.put(sample, this.trimMapTrimR1trimR2ok.get(sample) + 1);
-        }else{
-            this.trimMapTrimR1trimR2ok.put(sample, 1);
+        try{
+            lock.lock();
+            if (! this.sampleSet.contains(sample)){
+                this.sampleSet.add(sample);
+            }
+            if (this.trimMapTrimR1trimR2ok.containsKey(sample)){
+                this.trimMapTrimR1trimR2ok.put(sample, this.trimMapTrimR1trimR2ok.get(sample) + 1);
+            }else{
+                this.trimMapTrimR1trimR2ok.put(sample, 1);
+            }
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -296,105 +359,110 @@ public class CorrectionLog {
      * @param outputFile 
      */
     public void writeToFile(String outputFile){
-        String statsString = "Corrections:" + "\n";
-        statsString += "SampleID" + "\t" + "CorrectTrim" + "\t" + "CorrectedR1" + "\t" + "CorrectedR2" + "\t" + "NotCorrectR1" + "\t" + "NotCorrectR2" + "\n";
-        for (Sample sample : this.sampleSet){
-            statsString += sample.getSampleID() + "\t";
-            if (this.correctMapTrimOk.containsKey(sample)){
-                statsString += this.correctMapTrimOk.get(sample);
-            }else{
-                statsString += "0";
+        try{
+            lock.lock();
+            String statsString = "Corrections:" + "\n";
+            statsString += "SampleID" + "\t" + "CorrectTrim" + "\t" + "CorrectedR1" + "\t" + "CorrectedR2" + "\t" + "NotCorrectR1" + "\t" + "NotCorrectR2" + "\n";
+            for (Sample sample : this.sampleSet){
+                statsString += sample.getSampleID() + "\t";
+                if (this.correctMapTrimOk.containsKey(sample)){
+                    statsString += this.correctMapTrimOk.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.correctMapR1Corrected.containsKey(sample)){
+                    statsString += this.correctMapR1Corrected.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.correctMapR2Corrected.containsKey(sample)){
+                    statsString += this.correctMapR2Corrected.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.correctMapR1Not.containsKey(sample)){
+                    statsString += this.correctMapR1Not.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.correctMapR2Not.containsKey(sample)){
+                    statsString += this.correctMapR2Not.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\n";
             }
-            statsString += "\t";
-            if (this.correctMapR1Corrected.containsKey(sample)){
-                statsString += this.correctMapR1Corrected.get(sample);
-            }else{
-                statsString += "0";
+
+            statsString += "\n\n\n";
+            statsString += "Trimming:" + "\n";
+            statsString += "SampleID" + "\t" + "not_R1_not_R2" + "\t" + "not_R1_but_OK" + "\t" + "not_R1_but_fail" + "\t" + "trim_R1_not_R2" + "\t" 
+                    + "trim_R1_trim_R2_long_R1" + "\t" + "trim_R1_trim_R2_long_R2" + "\t" + "trim_R1_trim_R2_ok" + "\n";
+            for (Sample sample : this.sampleSet){
+                statsString += sample.getSampleID() + "\t";
+                if (this.trimMapNotR1NotR2.containsKey(sample)){
+                    statsString += this.trimMapNotR1NotR2.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapNotR1TrimR2butOK.containsKey(sample)){
+                    statsString += this.trimMapNotR1TrimR2butOK.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapNotR1TrimR2butFail.containsKey(sample)){
+                    statsString += this.trimMapNotR1TrimR2butFail.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapTrimR1NotR2Fail.containsKey(sample)){
+                    statsString += this.trimMapTrimR1NotR2Fail.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapTrimR1trimR2longR1.containsKey(sample)){
+                    statsString += this.trimMapTrimR1trimR2longR1.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapTrimR1trimR2longR2.containsKey(sample)){
+                    statsString += this.trimMapTrimR1trimR2longR2.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\t";
+                if (this.trimMapTrimR1trimR2ok.containsKey(sample)){
+                    statsString += this.trimMapTrimR1trimR2ok.get(sample);
+                }else{
+                    statsString += "0";
+                }
+                statsString += "\n";
             }
-            statsString += "\t";
-            if (this.correctMapR2Corrected.containsKey(sample)){
-                statsString += this.correctMapR2Corrected.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.correctMapR1Not.containsKey(sample)){
-                statsString += this.correctMapR1Not.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.correctMapR2Not.containsKey(sample)){
-                statsString += this.correctMapR2Not.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\n";
-        }
-        
-        statsString += "\n\n\n";
-        statsString += "Trimming:" + "\n";
-        statsString += "SampleID" + "\t" + "not_R1_not_R2" + "\t" + "not_R1_but_OK" + "\t" + "not_R1_but_fail" + "\t" + "trim_R1_not_R2" + "\t" 
-                + "trim_R1_trim_R2_long_R1" + "\t" + "trim_R1_trim_R2_long_R2" + "\t" + "trim_R1_trim_R2_ok" + "\n";
-        for (Sample sample : this.sampleSet){
-            statsString += sample.getSampleID() + "\t";
-            if (this.trimMapNotR1NotR2.containsKey(sample)){
-                statsString += this.trimMapNotR1NotR2.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapNotR1TrimR2butOK.containsKey(sample)){
-                statsString += this.trimMapNotR1TrimR2butOK.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapNotR1TrimR2butFail.containsKey(sample)){
-                statsString += this.trimMapNotR1TrimR2butFail.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapTrimR1NotR2Fail.containsKey(sample)){
-                statsString += this.trimMapTrimR1NotR2Fail.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapTrimR1trimR2longR1.containsKey(sample)){
-                statsString += this.trimMapTrimR1trimR2longR1.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapTrimR1trimR2longR2.containsKey(sample)){
-                statsString += this.trimMapTrimR1trimR2longR2.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\t";
-            if (this.trimMapTrimR1trimR2ok.containsKey(sample)){
-                statsString += this.trimMapTrimR1trimR2ok.get(sample);
-            }else{
-                statsString += "0";
-            }
-            statsString += "\n";
-        }
-        //write the string to a file
-        File file = new File(outputFile + System.getProperty("file.separator") + "correction.stats");
-        try {
-            file.createNewFile();
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
-            bufferedWriter.write(statsString);
-            bufferedWriter.close();
-        } catch (IOException ex) {
-            Logger.getLogger(DemultiplexStats.class.getName()).log(Level.SEVERE, null, ex);
+            //write the string to a file
+            File file = new File(outputFile + System.getProperty("file.separator") + "correction.stats");
             try {
-                this.logFile.addToLog("Couldn't write the correction stats");
-            } catch (ErrorInLogException ex1) {
-                Logger.getLogger(DemultiplexStats.class.getName()).log(Level.SEVERE, null, ex1);
+                file.createNewFile();
+                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                bufferedWriter.write(statsString);
+                bufferedWriter.close();
+            } catch (IOException ex) {
+                Logger.getLogger(DemultiplexStats.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    this.logFile.addToLog("Couldn't write the correction stats");
+                } catch (ErrorInLogException ex1) {
+                    Logger.getLogger(DemultiplexStats.class.getName()).log(Level.SEVERE, null, ex1);
+                }
             }
+        }finally{
+            lock.unlock();
         }
     }
     

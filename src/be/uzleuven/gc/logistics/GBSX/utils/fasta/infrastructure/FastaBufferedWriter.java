@@ -4,7 +4,6 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fasta.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fasta.model.FastaRead;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -14,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
@@ -26,7 +26,7 @@ public class FastaBufferedWriter {
     
     
     private final BufferedWriter fastaBufferedWriter;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates a new FastaBufferedWriter of the given file.
@@ -96,14 +96,14 @@ public class FastaBufferedWriter {
      * @throws IOException | if any error occures while writing the file
      */
     public void write(FastaRead fasta) throws IOException{
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             this.fastaBufferedWriter.write(fasta.getDescription());
             this.fastaBufferedWriter.write("\n");
             this.fastaBufferedWriter.write(fasta.getSequence());
             this.fastaBufferedWriter.write("\n");
-            this.fileLocker.unlock();
-        }else{
-            throw new IOException("Fasta Buffer closed");
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -113,8 +113,12 @@ public class FastaBufferedWriter {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastaBufferedWriter.close();
+        lock.lock();
+        try {
+            this.fastaBufferedWriter.close();
+        } finally {
+            lock.unlock();
+        }
     }
     
     

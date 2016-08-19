@@ -19,12 +19,12 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fasta.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fasta.model.FastaRead;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +36,7 @@ public class FastaPairBufferedReader {
     
     private FastaBufferedReader fastaBufferedReader1;
     private FastaBufferedReader fastaBufferedReader2;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates 2 new FastaBufferedReader of the given files.
@@ -58,10 +58,12 @@ public class FastaPairBufferedReader {
      */
     public HashMap<String, FastaRead> next() throws IOException{
         HashMap<String, FastaRead> tmpMap = new HashMap();
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             tmpMap.put("r1", this.fastaBufferedReader1.next());
             tmpMap.put("r2", this.fastaBufferedReader2.next());
-            this.fileLocker.unlock();
+        }finally{
+            lock.unlock();
         }
         return tmpMap;
     }  
@@ -71,9 +73,13 @@ public class FastaPairBufferedReader {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastaBufferedReader1.close();
-        this.fastaBufferedReader2.close();
+        try{
+            lock.lock();
+            this.fastaBufferedReader1.close();
+            this.fastaBufferedReader2.close();
+        }finally{
+            lock.unlock();
+        }
     }
     
     

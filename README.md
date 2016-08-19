@@ -33,7 +33,7 @@ UZ – KU Leuven
 Herestraat 49 PO box 602  
 B-3000 Leuven, Belgium  
 
-Mail: [genomicscore@uzleuven.be](mailto:genomicscore@uzleuven.be "")
+Mail: [koen.herten@kuleuven.be](mailto:koen.herten@kuleuven.be "")
 
 
 ## Citing GBSX
@@ -41,8 +41,10 @@ Mail: [genomicscore@uzleuven.be](mailto:genomicscore@uzleuven.be "")
 We ask that you cite this paper if you use GBSX in work that leads to 
 publication.
 
->    Herten,K et al. (2015) GBSX: a toolkit for experimental design and 
-demultiplexing genotyping by sequencing experiments  BMC Bioinformatics 2015, 16:73 doi:10.1186/s12859-015-0514-3
+>    Herten, Koen and Hestand, Matthew S. and Vermeesch, Joris R. and Van Houdt, 
+Jeroen KJ (2015) GBSX: a toolkit for experimental design and demultiplexing 
+genotyping by sequencing experiments  BMC Bioinformatics 2015, 16:73 
+doi:10.1186/s12859-015-0514-3
 
 ## Help
 
@@ -118,6 +120,7 @@ These parameters are optional:
 paired-end sequencing)  
 *    `-o`    the name of the output directory (standard the directory of the 
 call)  
+*    `-t`    the number of threads to use (standard 1)  
 *    `-lf`    use long file names (standard false) filename is standard the 
 sample name, long file names is sample name _ barcode _ enzyme	   
 *    `-rad`    if the data is rad data or not (-rad true for RAD data, -rad 
@@ -264,3 +267,7 @@ v1.1.5
 v1.2
  * Deleted Demultiplexer option -m
  * Code Clean-up
+
+v1.3
+ * Removal of the filelock class, ReentrantLock is now used
+ * The demultiplexing is now multithreaded: use -t NumberOfThreads

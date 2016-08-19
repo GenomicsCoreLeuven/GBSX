@@ -1,5 +1,5 @@
 /* 
- * This is GBSX v1.0. A toolkit for experimental design and demultiplexing genotyping by sequencing experiments.
+ * This is GBSX v1.3. A toolkit for experimental design and demultiplexing genotyping by sequencing experiments.
  * 
  * Copyright 2014 KU Leuven
  * 
@@ -35,7 +35,7 @@ import be.uzleuven.gc.logistics.GBSX.utils.exceptions.StopExcecutionException;
 public class GBSX {
     
     public static final boolean DEBUG = false;
-    public final static String VERSION = "GBSX v1.2";
+    public final static String VERSION = "GBSX v1.3";
     private final static String LICENCE = "GPLv3";
     
     /**

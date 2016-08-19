@@ -19,11 +19,11 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fasta.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fasta.model.FastaRead;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class FastaPairBufferedWriter {
     private FastaBufferedWriter fastaBufferedWriter1;
     private FastaBufferedWriter fastaBufferedWriter2;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates 2 new FastaBufferedWriter of the given files.
@@ -55,12 +55,12 @@ public class FastaPairBufferedWriter {
      * @throws IOException | if any error occures while reading the file
      */
     public void write(FastaRead fastaRead1, FastaRead fastaRead2) throws IOException{
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             this.fastaBufferedWriter1.write(fastaRead1);
             this.fastaBufferedWriter2.write(fastaRead2);
-            this.fileLocker.unlock();
-        }else{
-            throw new IOException("Paired FastqBuffer closed");
+        }finally{
+            lock.unlock();
         }
     }  
     
@@ -69,9 +69,13 @@ public class FastaPairBufferedWriter {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastaBufferedWriter1.close();
-        this.fastaBufferedWriter2.close();
+        try{
+            lock.lock();
+            this.fastaBufferedWriter1.close();
+            this.fastaBufferedWriter2.close();
+        }finally{
+            lock.unlock();
+        }
     }
     
     

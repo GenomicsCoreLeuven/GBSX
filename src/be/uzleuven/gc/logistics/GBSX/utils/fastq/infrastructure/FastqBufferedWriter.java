@@ -19,7 +19,6 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fastq.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fastq.model.FastqRead;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -28,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPOutputStream;
@@ -39,7 +39,7 @@ import java.util.zip.GZIPOutputStream;
 public class FastqBufferedWriter {
     
     private final BufferedWriter fastqBufferedWriter;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates a new FastqBufferedWriter of the given file.
@@ -79,7 +79,8 @@ public class FastqBufferedWriter {
      * @throws IOException | if any error occures while writing the file
      */
     public void write(FastqRead fastq) throws IOException{
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             this.fastqBufferedWriter.write(fastq.getDescription());
             this.fastqBufferedWriter.write("\n");
             this.fastqBufferedWriter.write(fastq.getSequence());
@@ -88,9 +89,10 @@ public class FastqBufferedWriter {
             this.fastqBufferedWriter.write("\n");
             this.fastqBufferedWriter.write(fastq.getQuality());
             this.fastqBufferedWriter.write("\n");
-            this.fileLocker.unlock();
-        }else{
+        }catch(IOException e){
             throw new IOException("FastqBuffer closed");
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -100,8 +102,12 @@ public class FastqBufferedWriter {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastqBufferedWriter.close();
+        try{
+            lock.lock();
+            this.fastqBufferedWriter.close();
+        }finally{
+            lock.unlock();
+        }
     }
     
     

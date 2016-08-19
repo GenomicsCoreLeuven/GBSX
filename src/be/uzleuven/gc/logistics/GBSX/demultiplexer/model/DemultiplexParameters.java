@@ -61,6 +61,7 @@ public class DemultiplexParameters implements Parameters{
         this.arguments.put(DemultiplexArguments.LONG_FILE_NAMES, "false");
         this.arguments.put(DemultiplexArguments.USE_SELF_CORRECTING_BARCODES, "false");
         this.arguments.put(DemultiplexArguments.COMMON_ADAPTOR_COMPARE_SIZE, "14");
+        this.arguments.put(DemultiplexArguments.THREADS, "1");
         //this will automaticaly return the standard algorithm
         this.arguments.put(DemultiplexArguments.MISMATCH_ALGORITHM, FindingsAlgorithms.getStandard().getAlgorithmName());
         this.enzymeCollection = new EnzymeCollection();
@@ -456,6 +457,14 @@ public class DemultiplexParameters implements Parameters{
     }
     
     /**
+     * 
+     * @return integer | the number of threads
+     */
+    public int getThreadNumber(){
+        return Integer.parseInt(this.arguments.get(DemultiplexArguments.THREADS));
+    }
+    
+    /**
      * configures a log file for all known parameters
      * @return String to put in the log file
      */
@@ -551,6 +560,7 @@ public class DemultiplexParameters implements Parameters{
         toHelp += "\t -lf \t use long file names (standard false) filename is standard the sample name, long file names is sample name _ barcode _ enzyme" + "\n";
         toHelp += "\t -rad \t if the data is rad data or not (-rad true for RAD data, -rad false for GBS data) standard false (GBS)" + "\n";
         toHelp += "\t -gzip \t the input and output are/must be gziped (.gz) (standard false: input and output are .fastq, if true this is .fastq.gz)" + "\n";
+        toHelp += "\t -t \t the number of threads to use (standard 1)" + "\n";
         toHelp += "\t -mb \t the allowed mismatches in the barcodes (overrides the option -m)" + "\n";
         toHelp += "\t -me \t the allowed mismatches in the enzymes (overrides the option -m)" + "\n";
         toHelp += "\t -minsl \t the minimum allowed length for the sequences (standard 0, rejected sequences are found in the stats for each sample in the rejected.count column. The sequences self are found untrimmed in the undetermined file.)" + "\n";

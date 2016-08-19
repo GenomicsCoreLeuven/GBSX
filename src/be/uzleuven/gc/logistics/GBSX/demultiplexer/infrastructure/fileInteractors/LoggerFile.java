@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +42,7 @@ import java.util.logging.Logger;
 public class LoggerFile {
     
     private Writer logwriter;
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates and opens a logfile at the given location
@@ -84,10 +86,13 @@ public class LoggerFile {
      */
     public void addToLog(String log) throws ErrorInLogException{
         try {
+            lock.lock();
             this.logwriter.write(log);
         } catch (IOException ex) {
             Logger.getLogger(LoggerFile.class.getName()).log(Level.SEVERE, null, ex);
             throw new ErrorInLogException(log, ex);
+        }finally{
+            lock.unlock();
         }
     }
     
@@ -97,11 +102,13 @@ public class LoggerFile {
      */
     public void closeLog() throws ErrorInLogException{
         try {
-        Date now2 = new Date();
-        this.addToLog("Ended on " + now2.toString());
+            lock.lock();
+            Date now2 = new Date();
+            this.addToLog("Ended on " + now2.toString());
         } catch (ErrorInLogException e){
             
         }finally{
+            lock.unlock();
             try {
                 this.logwriter.close();
             } catch (IOException ex) {

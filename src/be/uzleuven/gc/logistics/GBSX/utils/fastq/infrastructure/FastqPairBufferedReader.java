@@ -19,12 +19,12 @@
  */
 package be.uzleuven.gc.logistics.GBSX.utils.fastq.infrastructure;
 
-import be.uzleuven.gc.logistics.GBSX.utils.FileLocker;
 import be.uzleuven.gc.logistics.GBSX.utils.fastq.model.FastqRead;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +36,7 @@ public class FastqPairBufferedReader {
     
     private FastqBufferedReader fastqBufferedReader1;
     private FastqBufferedReader fastqBufferedReader2;
-    private FileLocker fileLocker = new FileLocker();
+    private ReentrantLock lock = new ReentrantLock();
     
     /**
      * creates 2 new FastqBufferedReader of the given files.
@@ -58,10 +58,12 @@ public class FastqPairBufferedReader {
      */
     public HashMap<String, FastqRead> next() throws IOException{
         HashMap<String, FastqRead> tmpMap = new HashMap();
-        if (this.fileLocker.lock()){
+        try{
+            lock.lock();
             tmpMap.put("r1", this.fastqBufferedReader1.next());
             tmpMap.put("r2", this.fastqBufferedReader2.next());
-            this.fileLocker.unlock();
+        }finally{
+            lock.unlock();
         }
         return tmpMap;
     }  
@@ -71,9 +73,13 @@ public class FastqPairBufferedReader {
      * @throws IOException 
      */
     public void close() throws IOException{
-        this.fileLocker.waitTillCompleteUnlock();
-        this.fastqBufferedReader1.close();
-        this.fastqBufferedReader2.close();
+        try{
+            lock.lock();
+            this.fastqBufferedReader1.close();
+            this.fastqBufferedReader2.close();
+        }finally{
+            lock.unlock();
+        }
     }
     
     
